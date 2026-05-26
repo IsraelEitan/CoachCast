@@ -121,6 +121,8 @@ docs(deploy): add Vercel runbook
 
 Pull requests should stay small, include validation notes, and use the repository PR template.
 
+`main` is protected. Use pull requests for all future changes.
+
 ## CI/CD
 
 CI runs on pull requests, pushes to `main`, and manual dispatch.
