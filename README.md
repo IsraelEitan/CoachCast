@@ -48,7 +48,7 @@ Planned integrations:
 Requirements:
 
 - Node.js 22
-- npm 11+
+- npm 10.9+
 
 Install and run:
 
