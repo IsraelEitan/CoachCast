@@ -67,7 +67,10 @@ Project settings:
 - Install command: `npm ci`
 - Build command: `npm run build`
 - Development command: `npm run dev`
+- Node.js version: `22.x` through `package.json` `engines.node`
 - Production branch: `main`
+
+If Vercel cannot connect the GitHub repository from the CLI, open the Vercel project dashboard and install or reconfigure the Vercel GitHub integration for `IsraelEitan/CoachCast`.
 
 ## Step 3: Configure Environment Variables
 
