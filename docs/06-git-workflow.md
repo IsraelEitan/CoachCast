@@ -34,6 +34,30 @@ Recommended branch protection for `main`:
 - disallow direct pushes
 - require branches to be up to date before merge once the project has multiple contributors
 
+## Active Repository Rules
+
+`main` is protected by the GitHub repository ruleset `Protect main`.
+
+Current rules:
+
+- changes must go through a pull request
+- the `Validate app` CI check must pass
+- pull requests must be tested against the latest `main`
+- review conversations must be resolved
+- force pushes are blocked
+- branch deletion is blocked
+- linear history is required
+- squash and rebase merges are allowed
+
+Current solo-founder setting:
+
+- required human approvals: `0`
+
+Why:
+
+- this keeps the PR workflow mandatory without blocking progress while there is only one maintainer
+- when another trusted reviewer joins, increase required approvals to `1`
+
 ## Commit Standards
 
 Use Conventional Commits:
