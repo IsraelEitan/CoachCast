@@ -4,6 +4,8 @@
 
 CoachCast is an AI content production SaaS for trainers, gyms, and fitness studios. The product goal is simple: a coach records once, and the system turns that recording into scripts, branded short-form videos, captions, B-roll plans, and scheduled posts.
 
+Production: https://coachcast-zeta.vercel.app
+
 The current repository is the production foundation: a Next.js app, mocked AI data contracts, CI/CD workflows, deployment smoke checks, Docker support, and documentation for the cloud path.
 
 ## Product Scope
