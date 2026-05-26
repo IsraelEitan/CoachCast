@@ -27,6 +27,12 @@ Verified locally:
 - smoke checks exist
 - `.env.example` documents required future secrets
 
+Current Vercel project:
+
+- Project: `israeleitans-projects/coachcast`
+- Production URL: `https://coachcast-zeta.vercel.app`
+- Latest verified deployment: `dpl_5VFEgugXUndpkUyUqh4WjrAYH7JA`
+
 Missing before real deploy:
 
 - GitHub remote repository
