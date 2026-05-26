@@ -32,6 +32,7 @@ Current Vercel project:
 - Project: `israeleitans-projects/coachcast`
 - Production URL: `https://coachcast-zeta.vercel.app`
 - Latest verified deployment: `dpl_5VFEgugXUndpkUyUqh4WjrAYH7JA`
+- Connected Git repository: `IsraelEitan/CoachCast`
 
 Missing before real deploy:
 
@@ -77,6 +78,18 @@ Project settings:
 - Production branch: `main`
 
 If Vercel cannot connect the GitHub repository from the CLI, open the Vercel project dashboard and install or reconfigure the Vercel GitHub integration for `IsraelEitan/CoachCast`.
+
+Expected deployment behavior after Git connection:
+
+- pull requests create Vercel preview deployments
+- pushes to `main` deploy production
+- `npm run smoke` should pass against the production alias after each production deployment
+
+Deployment smoke policy:
+
+- GitHub CI validates every pull request with build and local smoke checks.
+- Vercel validates every pull request with a preview deployment status.
+- The `Deployment Smoke` workflow runs only for Vercel `Production` deployments because preview deployments can be protected by Vercel Authentication and return `401` to unauthenticated CI smoke checks.
 
 ## Step 3: Configure Environment Variables
 

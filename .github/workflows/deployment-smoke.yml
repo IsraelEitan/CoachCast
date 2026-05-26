@@ -9,7 +9,7 @@ permissions:
 jobs:
   smoke:
     name: Smoke deployed app
-    if: ${{ github.event.deployment_status.state == 'success' && github.event.deployment_status.environment_url != '' }}
+    if: ${{ github.event.deployment_status.state == 'success' && github.event.deployment_status.environment_url != '' && github.event.deployment.environment == 'Production' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
