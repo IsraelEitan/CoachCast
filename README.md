@@ -89,6 +89,18 @@ Copy [.env.example](./.env.example) when real integrations are added.
 
 Current mocked app can run without secrets. Future server-only secrets must never be exposed with `NEXT_PUBLIC_`.
 
+Supabase server-side auth is scaffolded with cookie-based clients and a request proxy. For new Supabase projects, prefer:
+
+```text
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_SECRET_KEY=
+```
+
+Legacy Supabase `anon` and `service_role` keys are still supported as fallbacks for existing projects, but new projects should use publishable and secret keys.
+
+The initial database contract lives in [supabase/migrations/202605260001_initial_schema.sql](./supabase/migrations/202605260001_initial_schema.sql).
+
 ## Repository Workflow
 
 Default branch:
@@ -190,6 +202,7 @@ See [docs/05-deployment-runbook.md](./docs/05-deployment-runbook.md).
 - [Production cloud and CI/CD](./docs/04-production-cloud-cicd.md)
 - [Deployment runbook](./docs/05-deployment-runbook.md)
 - [Git workflow](./docs/06-git-workflow.md)
+- [Supabase foundation](./docs/07-supabase-foundation.md)
 
 ## License
 
