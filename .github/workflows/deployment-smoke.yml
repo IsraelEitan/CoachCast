@@ -28,5 +28,5 @@ jobs:
 
       - name: Smoke test deployment
         env:
-          SMOKE_BASE_URL: ${{ github.event.deployment_status.environment_url }}
+          SMOKE_BASE_URL: ${{ vars.PRODUCTION_URL || github.event.deployment_status.environment_url }}
         run: npm run smoke

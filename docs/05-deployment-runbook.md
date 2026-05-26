@@ -90,6 +90,7 @@ Deployment smoke policy:
 - GitHub CI validates every pull request with build and local smoke checks.
 - Vercel validates every pull request with a preview deployment status.
 - The `Deployment Smoke` workflow runs only for Vercel `Production` deployments because preview deployments can be protected by Vercel Authentication and return `401` to unauthenticated CI smoke checks.
+- Production deployment smoke uses the GitHub repository variable `PRODUCTION_URL`, currently `https://coachcast-zeta.vercel.app`, so smoke checks target the public production alias instead of a protected generated deployment URL.
 
 ## Step 3: Configure Environment Variables
 
