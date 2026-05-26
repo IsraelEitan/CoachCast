@@ -1,0 +1,32 @@
+name: Deployment Smoke
+
+on:
+  deployment_status:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Smoke deployed app
+    if: ${{ github.event.deployment_status.state == 'success' && github.event.deployment_status.environment_url != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Smoke test deployment
+        env:
+          SMOKE_BASE_URL: ${{ github.event.deployment_status.environment_url }}
+        run: npm run smoke
