@@ -45,7 +45,7 @@ npm run smoke
 npm run docker:build
 ```
 
-`npm run verify` is the default local gate for code changes. It runs lint, TypeScript, tests, and production build.
+`npm run verify` is the default local gate for code changes. It runs the secret scan, lint, TypeScript, tests, and production build.
 
 `npm run smoke` needs a running app. By default it checks `http://127.0.0.1:3000`. Set `SMOKE_BASE_URL` for deployed targets.
 
@@ -60,6 +60,63 @@ npm run docker:build
 - Do not stage unrelated local changes.
 
 `main` is protected. Required CI check: `Validate app`.
+
+## Work Intake Contract
+
+Before implementing a meaningful task, make sure the work is clear enough to execute safely.
+
+Each task should identify:
+
+- problem statement
+- expected behavior
+- constraints
+- risk tier
+- acceptance criteria
+- test expectations
+- files or areas in scope
+- areas out of scope
+- rollback expectation when relevant
+
+If those inputs are missing and the task is risky, stop and ask for clarification. For low-risk work, make conservative assumptions and state them.
+
+## Risk Tiers And Approval
+
+Use the highest applicable tier.
+
+Low risk:
+
+- documentation
+- unit tests
+- logging
+- minor UI text
+- small refactors with no behavior change
+- cleanup with clear validation
+
+Low-risk work can proceed with normal PR review and standard validation.
+
+Medium risk:
+
+- business logic
+- API/data contract changes
+- dependency updates
+- performance-sensitive code
+- changes touching multiple product areas
+
+Medium-risk work requires explicit risk notes, focused tests, and careful review before merge.
+
+High risk:
+
+- authentication
+- authorization or RLS
+- encryption or secrets
+- payments
+- database migrations
+- infrastructure
+- production configuration
+- CI/CD pipeline behavior
+- destructive operations
+
+High-risk work requires explicit user approval before implementation or merge. Add security, production, or architecture review as appropriate.
 
 ## Skill Use Rules
 
@@ -112,6 +169,37 @@ Use isolated review passes when risk increases:
 - Background jobs, queues, rendering, uploads: reliability and idempotency review
 
 The writer and reviewer mindset should be separate. Do not rubber-stamp your own implementation.
+
+## Quality Gates
+
+Default local gate:
+
+```bash
+npm run verify
+```
+
+Current required checks:
+
+- committed secret scan
+- dependency audit in CI
+- lint
+- TypeScript
+- tests
+- production build
+- local production smoke in CI
+- Docker image build in CI
+
+Future gates to add as the product matures:
+
+- formatting check
+- SAST
+- license scanning
+- container image scanning
+- contract tests
+- coverage threshold
+- breaking API detection
+
+Do not weaken gates to make a change pass.
 
 ## Acceptance Criteria
 

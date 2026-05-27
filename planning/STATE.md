@@ -58,6 +58,7 @@ Production deployment validation:
 - No live Supabase project has been verified from this repo yet.
 - No staging environment is configured yet.
 - Optional local pre-push hook is committed in `.githooks/`; run `npm run hooks:install` to enable it locally.
+- CI has dependency audit and a lightweight committed-secret scan; broader SAST/SBOM/image scanning are future hardening steps.
 - No AI prompt contracts or eval tests are implemented yet.
 - No browser accessibility or visual regression suite is implemented yet.
 
@@ -68,6 +69,12 @@ Production deployment validation:
 Decision: add `AGENTS.md`, `CLAUDE.md`, planning state, acceptance scaffolding, and a `verify` script.
 
 Why: skills and chat instructions are useful, but recurring delivery rules must live in the repo so future agent sessions inherit the same operating model.
+
+### 2026-05-27: Add Risk Tiers And First Security Gate
+
+Decision: add low/medium/high risk tiers, richer work intake, PR evidence fields, and a lightweight secret scan in `npm run verify` and CI.
+
+Why: agentic PRs should be evidence packages. Trust should come from context, guardrails, verification, traceability, and human approval by risk.
 
 ### 2026-05-26: Supabase Foundation Merged
 

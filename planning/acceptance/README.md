@@ -9,6 +9,28 @@ Acceptance files should make a feature executable and reviewable before implemen
 ````md
 # Feature Name
 
+## Work Intake
+
+Problem statement:
+
+- ...
+
+Expected behavior:
+
+- ...
+
+Constraints:
+
+- ...
+
+Risk tier:
+
+- Low | Medium | High
+
+Test expectations:
+
+- ...
+
 ## Goal
 
 What user or business outcome should this produce?
@@ -43,6 +65,7 @@ Excluded:
 - [ ] Unauthorized users cannot ...
 - [ ] Loading, error, empty, and success states are covered.
 - [ ] Validation commands pass.
+- [ ] Known out-of-scope areas are listed.
 
 ## Validation Plan
 
@@ -60,6 +83,14 @@ Risks:
 
 - ...
 
+What was not tested:
+
+- ...
+
+Breaking changes:
+
+- None expected | ...
+
 Rollback:
 
 - ...
@@ -76,3 +107,32 @@ Create an acceptance file for:
 - changes requiring manual QA
 
 Small copy changes, tiny UI fixes, and low-risk internal cleanups can use the PR template only.
+
+## Risk Tier Guide
+
+Low risk:
+
+- documentation
+- tests
+- logging
+- minor UI copy
+- small refactors without behavior changes
+
+Medium risk:
+
+- business logic
+- API/data contracts
+- dependency updates
+- performance-sensitive code
+
+High risk:
+
+- auth
+- authorization/RLS
+- database migrations
+- secrets
+- infrastructure
+- production config
+- CI/CD behavior
+
+High-risk work needs explicit approval and a rollback plan before implementation.

@@ -22,6 +22,7 @@ Every pull request should:
 
 - solve one clear problem
 - include a summary and validation notes
+- state the risk tier: low, medium, or high
 - keep unrelated refactors out
 - pass CI before merge
 - use squash merge by default
@@ -115,6 +116,7 @@ git push origin v0.1.0
 
 Pull requests must pass:
 
+- committed secret scan
 - dependency audit
 - lint
 - typecheck
@@ -144,3 +146,13 @@ For future database changes:
 - use backward-compatible migrations
 - separate destructive data changes from app deploys
 - test migrations in staging before production
+
+## Risk Tiers
+
+Low-risk changes include documentation, unit tests, logging, minor UI text, and small refactors with no behavior change.
+
+Medium-risk changes include business logic, API/data contracts, dependency updates, and performance-sensitive code.
+
+High-risk changes include authentication, authorization, RLS, database migrations, secrets, infrastructure, production configuration, and CI/CD behavior.
+
+High-risk changes require explicit approval and a rollback plan before merge.
