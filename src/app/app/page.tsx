@@ -1,15 +1,36 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell/AppShell";
+import { getAppSession } from "@/lib/auth/app-session";
 import { mockContentIdeas } from "@/lib/fixtures/coachcast";
 
-export default function DashboardPage() {
+export const dynamic = "force-dynamic";
+
+type DashboardSearchParams = Promise<{
+  status?: string;
+}>;
+
+const statusMessages: Record<string, string> = {
+  "workspace-created": "Workspace created. Your content system now has a tenant-safe home."
+};
+
+export default async function DashboardPage({ searchParams }: { searchParams: DashboardSearchParams }) {
+  const params = await searchParams;
+  const session = await getAppSession({ nextPath: "/app", requireWorkspace: true });
+  const workspaceName = session.workspace?.name ?? "Demo workspace";
+  const statusMessage = params.status ? statusMessages[params.status] : null;
+
   return (
-    <AppShell title="Your AI content production dashboard">
+    <AppShell authEnabled={session.authEnabled} title="Your AI content production dashboard" workspaceName={workspaceName}>
+      {statusMessage ? (
+        <p className="form-alert app-status" role="status">
+          {statusMessage}
+        </p>
+      ) : null}
       <div className="app-grid app-grid--three">
         <article className="app-card">
           <span className="app-card__kicker">Next step</span>
-          <h2>Run your content scan</h2>
-          <p>Create the brand profile that powers your ideas, scripts, captions, and future render plans.</p>
+          <h2>{session.authEnabled ? `Run ${workspaceName}'s content scan` : "Run your content scan"}</h2>
+          <p>Create the brand profile that powers ideas, scripts, captions, and future render plans.</p>
           <Link className="app-button" href="/app/onboarding">
             Start scan
           </Link>

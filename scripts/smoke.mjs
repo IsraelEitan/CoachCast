@@ -15,17 +15,17 @@ const checks = [
   {
     path: "/app",
     type: "text",
-    expects: ["Your AI content production dashboard"]
+    expectsAny: ["Your AI content production dashboard", "Sign in to CoachCast"]
   },
   {
     path: "/app/onboarding",
     type: "text",
-    expects: ["Content scan"]
+    expectsAny: ["Content scan", "Create your workspace", "Sign in to CoachCast"]
   },
   {
     path: "/app/scripts/demo",
     type: "text",
-    expects: ["Script studio"]
+    expectsAny: ["Script studio", "Sign in to CoachCast"]
   }
 ];
 
@@ -50,10 +50,14 @@ async function checkRoute(check) {
   }
 
   const body = await response.text();
-  for (const expected of check.expects) {
+  for (const expected of check.expects ?? []) {
     if (!body.includes(expected)) {
       throw new Error(`${check.path} did not include expected text: ${expected}`);
     }
+  }
+
+  if (check.expectsAny && !check.expectsAny.some((expected) => body.includes(expected))) {
+    throw new Error(`${check.path} did not include any expected text: ${check.expectsAny.join(", ")}`);
   }
 }
 

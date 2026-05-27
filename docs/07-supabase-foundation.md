@@ -12,10 +12,12 @@ This foundation adds:
 
 - Supabase SSR/browser/service clients under `src/lib/supabase`
 - a Next.js `src/proxy.ts` session refresh hook that no-ops until Supabase env vars exist
+- sign-in, sign-up, sign-out, and workspace onboarding server actions
+- request-time app route protection once Supabase env vars are configured
 - an initial migration in `supabase/migrations`
 - tests that guard the RLS and AI job contract
 
-The app still runs without Supabase credentials so CI, previews, and mocked UX stay stable while we integrate real auth.
+The app still runs without Supabase credentials so CI, previews, and mocked UX stay stable while the live Supabase project is connected.
 
 ## Environment Variables
 
@@ -54,6 +56,7 @@ Every application table has RLS enabled. Workspace-scoped content uses `public.i
 1. Create the Supabase project and add the environment variables to Vercel.
 2. Apply the migration to Supabase.
 3. Generate official database types from the live Supabase schema and replace the hand-written bootstrap type file.
-4. Add sign-in and sign-up routes.
-5. Replace fixture reads with authenticated workspace queries.
-6. Add AI job creation through server actions or route handlers.
+4. Configure Supabase Auth callback URLs for local, preview, and production origins.
+5. Validate sign-up, sign-in, sign-out, workspace creation, and owner membership in the browser.
+6. Replace fixture reads with authenticated workspace queries.
+7. Add AI job creation through server actions or route handlers.

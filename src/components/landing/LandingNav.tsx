@@ -50,10 +50,10 @@ export const LandingNav: FC = () => {
           </a>
         </nav>
 
-        <Link className="header-login" href="/app">
+        <Link className="header-login" href="/auth/sign-in">
           Login
         </Link>
-        <Link className="header-cta" href="/app/onboarding">
+        <Link className="header-cta" href="/auth/sign-up">
           Start Free Trial
         </Link>
       </div>
