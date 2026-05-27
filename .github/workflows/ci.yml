@@ -36,6 +36,9 @@ jobs:
       - name: Audit dependencies
         run: npm audit --audit-level=moderate
 
+      - name: Scan for committed secrets
+        run: npm run security:secrets
+
       - name: Lint
         run: npm run lint
 

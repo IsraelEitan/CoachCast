@@ -63,13 +63,16 @@ Every pull request should include:
 
 - what changed
 - why it changed
+- risk tier: low, medium, or high
 - validation performed
 - risks or manual checks
+- rollback notes when relevant
 
 Expected checks before merge:
 
 ```bash
 npm run verify
+npm run security:secrets
 npm run lint
 npm run typecheck
 npm test
@@ -87,6 +90,16 @@ Run smoke checks when a local or preview URL is available:
 ```bash
 npm run smoke
 ```
+
+High-risk changes require explicit approval before merge. Examples:
+
+- authentication or authorization
+- Row Level Security
+- database migrations
+- secrets or encryption
+- production configuration
+- infrastructure
+- CI/CD pipeline behavior
 
 ## Versioning
 
