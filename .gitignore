@@ -28,6 +28,9 @@ pnpm-debug.log*
 # Vercel
 .vercel/
 
+# Supabase local/link state
+supabase/.temp/
+
 # Docker and local runtime files
 *.pid
 *.seed

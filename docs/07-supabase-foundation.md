@@ -19,6 +19,19 @@ This foundation adds:
 
 The app still runs without Supabase credentials so CI, previews, and mocked UX stay stable while the live Supabase project is connected.
 
+## Cloud Project
+
+Current Supabase project:
+
+```text
+Name: CoachCast
+Project ref: jqutwjhdupqmzhnydxzk
+Region: eu-central-1
+URL: https://jqutwjhdupqmzhnydxzk.supabase.co
+```
+
+The database password is private operator state. Do not commit it, paste it into chat, or store it in repo files. Use the Supabase dashboard password reset flow if it is lost.
+
 ## Environment Variables
 
 Use the current Supabase key names for new projects:
@@ -53,10 +66,28 @@ Every application table has RLS enabled. Workspace-scoped content uses `public.i
 
 ## Next Implementation Steps
 
-1. Create the Supabase project and add the environment variables to Vercel.
+1. Link the local repo to Supabase with the private database password.
 2. Apply the migration to Supabase.
 3. Generate official database types from the live Supabase schema and replace the hand-written bootstrap type file.
 4. Configure Supabase Auth callback URLs for local, preview, and production origins.
 5. Validate sign-up, sign-in, sign-out, workspace creation, and owner membership in the browser.
 6. Replace fixture reads with authenticated workspace queries.
 7. Add AI job creation through server actions or route handlers.
+
+## Operator Setup Commands
+
+Run these from the repository root. Enter secrets only in the local terminal or provider dashboard.
+
+```powershell
+npx supabase link --project-ref jqutwjhdupqmzhnydxzk
+npx supabase db push --linked
+npx supabase gen types --project-id jqutwjhdupqmzhnydxzk --schema public --lang typescript > src/lib/supabase/database.types.ts
+```
+
+Vercel requires these variables for each target environment:
+
+```text
+NEXT_PUBLIC_SUPABASE_URL=https://jqutwjhdupqmzhnydxzk.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<from Supabase Project Settings > API>
+SUPABASE_SECRET_KEY=<from Supabase Project Settings > API>
+```
