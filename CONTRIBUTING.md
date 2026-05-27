@@ -4,6 +4,7 @@ CoachCast is currently a proprietary product repository. Contributions are accep
 
 ## Working Principles
 
+- Read [AGENTS.md](./AGENTS.md) before doing agent-assisted work.
 - Keep changes small and reviewable.
 - Prefer production-safe increments over large rewrites.
 - Preserve user-facing behavior unless the pull request clearly explains the change.
@@ -68,10 +69,17 @@ Every pull request should include:
 Expected checks before merge:
 
 ```bash
+npm run verify
 npm run lint
 npm run typecheck
 npm test
 npm run build
+```
+
+To install the optional local pre-push hook:
+
+```bash
+npm run hooks:install
 ```
 
 Run smoke checks when a local or preview URL is available:

@@ -73,6 +73,7 @@ npm run lint      # Run ESLint
 npm run typecheck # Run TypeScript without emitting files
 npm test          # Run Node test suite
 npm run build     # Build production app
+npm run verify    # Run lint, typecheck, tests, and production build
 npm run smoke     # Smoke-test a running app
 npm run docker:build
 ```
@@ -203,6 +204,8 @@ See [docs/05-deployment-runbook.md](./docs/05-deployment-runbook.md).
 - [Deployment runbook](./docs/05-deployment-runbook.md)
 - [Git workflow](./docs/06-git-workflow.md)
 - [Supabase foundation](./docs/07-supabase-foundation.md)
+- [Agent operating rules](./AGENTS.md)
+- [Delivery state](./planning/STATE.md)
 
 ## License
 

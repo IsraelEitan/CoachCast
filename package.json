@@ -22,10 +22,12 @@
     "build": "next build",
     "docker:build": "docker build --tag coachcast:local .",
     "start": "next start",
+    "hooks:install": "git config core.hooksPath .githooks",
     "lint": "eslint .",
     "smoke": "node scripts/smoke.mjs",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/**/*.test.ts"
+    "test": "tsx --test src/**/*.test.ts",
+    "verify": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",
