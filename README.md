@@ -73,7 +73,7 @@ npm run lint      # Run ESLint
 npm run typecheck # Run TypeScript without emitting files
 npm test          # Run Node test suite
 npm run build     # Build production app
-npm run verify    # Run lint, typecheck, tests, and production build
+npm run verify    # Run secret scan, lint, typecheck, tests, and production build
 npm run smoke     # Smoke-test a running app
 npm run docker:build
 ```
