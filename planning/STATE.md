@@ -24,10 +24,14 @@ Last updated: 2026-05-27
 
 Phase: Supabase/Auth foundation to real workspace onboarding.
 
+Current acceptance package:
+
+- `planning/acceptance/auth-workspace-onboarding.md`
+
 Immediate next engineering goals:
 
-1. Connect Rube/Composio or Supabase MCP tools after Codex restart.
-2. Select or create the Supabase project.
+1. Confirm the Supabase project path: use an existing project or create a new CoachCast project.
+2. Connect Rube/Composio or Supabase MCP tools after Codex restart if automated project access is needed.
 3. Apply `supabase/migrations/202605260001_initial_schema.sql`.
 4. Generate live Supabase TypeScript types.
 5. Add sign-in, sign-up, and workspace onboarding.
@@ -75,6 +79,12 @@ Why: skills and chat instructions are useful, but recurring delivery rules must 
 Decision: add low/medium/high risk tiers, richer work intake, PR evidence fields, and a lightweight secret scan in `npm run verify` and CI.
 
 Why: agentic PRs should be evidence packages. Trust should come from context, guardrails, verification, traceability, and human approval by risk.
+
+### 2026-05-27: Define Auth And Workspace Onboarding Acceptance
+
+Decision: create a dedicated acceptance package for the first real Supabase-backed user flow before implementing auth or workspace writes.
+
+Why: auth, RLS, and workspace data boundaries are high-risk areas. A written work intake keeps scope explicit and gives the implementation PR a testable contract.
 
 ### 2026-05-26: Supabase Foundation Merged
 
