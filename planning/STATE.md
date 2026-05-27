@@ -17,7 +17,7 @@ Last updated: 2026-05-27
 - Next.js app shell is live.
 - Landing page, app dashboard, onboarding, profile, ideas, and script demo routes exist.
 - Mock fixtures drive the first product flow.
-- Supabase dependencies, typed clients, session proxy, and initial schema migration are in the repo.
+- Supabase dependencies, typed clients, session proxy, auth routes, workspace onboarding actions, and initial schema migration are in the repo.
 - Real Supabase project connection and migration application are still pending.
 
 ## Active Delivery Focus
@@ -30,12 +30,13 @@ Current acceptance package:
 
 Immediate next engineering goals:
 
-1. Confirm the Supabase project path: use an existing project or create a new CoachCast project.
-2. Connect Rube/Composio or Supabase MCP tools after Codex restart if automated project access is needed.
+1. Confirm why Rube/Composio/Supabase MCP tools are configured but not exposed to Codex.
+2. Confirm the Supabase project path: use an existing project or create a new CoachCast project.
 3. Apply `supabase/migrations/202605260001_initial_schema.sql`.
 4. Generate live Supabase TypeScript types.
-5. Add sign-in, sign-up, and workspace onboarding.
-6. Replace selected mock reads with authenticated workspace queries.
+5. Add Supabase and auth callback URLs to Vercel.
+6. Validate sign-up, sign-in, workspace creation, and RLS against the live project.
+7. Replace selected mock reads with authenticated workspace queries.
 
 ## Validation Baseline
 
@@ -60,6 +61,7 @@ Production deployment validation:
 ## Known Gaps
 
 - No live Supabase project has been verified from this repo yet.
+- Rube, Composio, and Supabase MCP servers are present in Codex config, but their tools are not currently exposed in the callable tool list.
 - No staging environment is configured yet.
 - Optional local pre-push hook is committed in `.githooks/`; run `npm run hooks:install` to enable it locally.
 - CI has dependency audit and a lightweight committed-secret scan; broader SAST/SBOM/image scanning are future hardening steps.
@@ -85,6 +87,12 @@ Why: agentic PRs should be evidence packages. Trust should come from context, gu
 Decision: create a dedicated acceptance package for the first real Supabase-backed user flow before implementing auth or workspace writes.
 
 Why: auth, RLS, and workspace data boundaries are high-risk areas. A written work intake keeps scope explicit and gives the implementation PR a testable contract.
+
+### 2026-05-27: Add Auth Routes And Workspace Onboarding Flow
+
+Decision: add sign-in, sign-up, sign-out, request-time app route protection, and workspace creation server actions while keeping demo fallback behavior when Supabase environment variables are missing.
+
+Why: CoachCast needs a real tenant boundary before user content or AI outputs can be stored. The fallback keeps CI, previews, and demo routes stable until the live Supabase project is connected.
 
 ### 2026-05-26: Supabase Foundation Merged
 

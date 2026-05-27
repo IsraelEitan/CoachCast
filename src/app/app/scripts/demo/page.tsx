@@ -1,9 +1,19 @@
 import { AppShell } from "@/components/app-shell/AppShell";
+import { getAppSession } from "@/lib/auth/app-session";
 import { mockScriptDraft } from "@/lib/fixtures/coachcast";
 
-export default function ScriptStudioPage() {
+export const dynamic = "force-dynamic";
+
+export default async function ScriptStudioPage() {
+  const session = await getAppSession({ nextPath: "/app/scripts/demo", requireWorkspace: true });
+
   return (
-    <AppShell title="Script studio" eyebrow="Step 4">
+    <AppShell
+      authEnabled={session.authEnabled}
+      title="Script studio"
+      eyebrow="Step 4"
+      workspaceName={session.workspace?.name}
+    >
       <div className="app-flow">
         <section className="script-panel">
           <div className="script-panel__header">

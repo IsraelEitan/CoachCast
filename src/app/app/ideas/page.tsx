@@ -1,10 +1,20 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell/AppShell";
+import { getAppSession } from "@/lib/auth/app-session";
 import { mockContentIdeas } from "@/lib/fixtures/coachcast";
 
-export default function IdeasPage() {
+export const dynamic = "force-dynamic";
+
+export default async function IdeasPage() {
+  const session = await getAppSession({ nextPath: "/app/ideas", requireWorkspace: true });
+
   return (
-    <AppShell title="Content ideas" eyebrow="Step 3">
+    <AppShell
+      authEnabled={session.authEnabled}
+      title="Content ideas"
+      eyebrow="Step 3"
+      workspaceName={session.workspace?.name}
+    >
       <div className="idea-list">
         {mockContentIdeas.map((idea) => (
           <article className="idea-card" key={idea.id}>

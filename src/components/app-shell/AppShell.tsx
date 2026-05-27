@@ -1,9 +1,12 @@
 import Link from "next/link";
+import { signOutAction } from "@/lib/auth/actions";
 
 type AppShellProps = {
+  authEnabled?: boolean;
   children: React.ReactNode;
   title: string;
   eyebrow?: string;
+  workspaceName?: string;
 };
 
 const navItems = [
@@ -14,7 +17,13 @@ const navItems = [
   { href: "/app/scripts/demo", label: "Script" }
 ];
 
-export function AppShell({ children, eyebrow = "CoachCast Studio", title }: AppShellProps) {
+export function AppShell({
+  authEnabled = false,
+  children,
+  eyebrow = "CoachCast Studio",
+  title,
+  workspaceName = "Demo workspace"
+}: AppShellProps) {
   return (
     <main className="product-app">
       <aside className="app-sidebar" aria-label="Product navigation">
@@ -29,6 +38,17 @@ export function AppShell({ children, eyebrow = "CoachCast Studio", title }: AppS
             </Link>
           ))}
         </nav>
+        <div className="app-sidebar__meta">
+          <span>{workspaceName}</span>
+          <small>{authEnabled ? "Live workspace" : "Demo mode"}</small>
+        </div>
+        {authEnabled ? (
+          <form action={signOutAction}>
+            <button className="app-sidebar__signout" type="submit">
+              Sign out
+            </button>
+          </form>
+        ) : null}
       </aside>
 
       <section className="app-main">

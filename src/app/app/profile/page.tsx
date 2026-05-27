@@ -1,14 +1,20 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell/AppShell";
+import { getAppSession } from "@/lib/auth/app-session";
 import { mockBrandProfile } from "@/lib/fixtures/coachcast";
 
-export default function ProfilePage() {
+export const dynamic = "force-dynamic";
+
+export default async function ProfilePage() {
+  const session = await getAppSession({ nextPath: "/app/profile", requireWorkspace: true });
+  const workspaceName = session.workspace?.name ?? mockBrandProfile.workspaceName;
+
   return (
-    <AppShell title="Brand profile result" eyebrow="Step 2">
+    <AppShell authEnabled={session.authEnabled} title="Brand profile result" eyebrow="Step 2" workspaceName={workspaceName}>
       <div className="app-flow">
         <section className="app-panel">
-          <h2>{mockBrandProfile.workspaceName}</h2>
-          <p>{mockBrandProfile.audience.summary}</p>
+          <h2>{workspaceName}</h2>
+          <p>{session.workspace?.audience_summary ?? mockBrandProfile.audience.summary}</p>
 
           <div className="app-chip-group" aria-label="Brand tone">
             {mockBrandProfile.tone.map((tone) => (
@@ -24,7 +30,7 @@ export default function ProfilePage() {
           </div>
 
           <Link className="app-button" href="/app/ideas">
-            Generate mocked ideas
+            {session.authEnabled ? "Continue to ideas" : "Generate mocked ideas"}
           </Link>
         </section>
 
