@@ -36,7 +36,6 @@ Current Vercel project:
 
 Current remaining cloud setup:
 
-- apply the initial Supabase migration to project `jqutwjhdupqmzhnydxzk`
 - add Supabase publishable and server secret keys to Vercel
 - configure Supabase Auth callback URLs
 - validate the live auth and workspace onboarding flow
@@ -123,6 +122,18 @@ Rule:
 
 - values with `NEXT_PUBLIC_` can be exposed to the browser
 - every other value is server-only
+
+Add secret values with the interactive CLI or the provider dashboard. Do not pass secret values in committed files or shared chat logs.
+
+```bash
+vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY production
+vercel env add SUPABASE_SECRET_KEY production
+vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY development
+vercel env add SUPABASE_SECRET_KEY development
+vercel env add NEXT_PUBLIC_SUPABASE_URL preview
+vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY preview
+vercel env add SUPABASE_SECRET_KEY preview
+```
 
 ## Step 4: Configure Branch Protection
 
