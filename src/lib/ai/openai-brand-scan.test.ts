@@ -6,7 +6,7 @@ import {
   buildBrandScanInput,
   type BrandScanOutput
 } from "./brand-scan-contract";
-import { createOpenAiBrandScanGenerator, extractOpenAiResponseText } from "./openai-brand-scan";
+import { createOpenAiBrandScanGenerator, extractOpenAiResponseText, getOpenAiBrandScanConfig } from "./openai-brand-scan";
 import type { WorkspaceSummary } from "../workspaces/workspace-data";
 
 const workspace = {
@@ -140,4 +140,31 @@ test("OpenAI response text extractor supports output_text convenience field", ()
     }),
     JSON.stringify(validOutput)
   );
+});
+
+test("OpenAI brand scan config trims hidden whitespace from environment values", () => {
+  const originalApiKey = process.env.OPENAI_API_KEY;
+  const originalModel = process.env.OPENAI_BRAND_SCAN_MODEL;
+
+  try {
+    process.env.OPENAI_API_KEY = "\uFEFFunit-test-key\n";
+    process.env.OPENAI_BRAND_SCAN_MODEL = " unit-model \n";
+
+    assert.deepEqual(getOpenAiBrandScanConfig(), {
+      apiKey: "unit-test-key",
+      model: "unit-model"
+    });
+  } finally {
+    if (originalApiKey === undefined) {
+      delete process.env.OPENAI_API_KEY;
+    } else {
+      process.env.OPENAI_API_KEY = originalApiKey;
+    }
+
+    if (originalModel === undefined) {
+      delete process.env.OPENAI_BRAND_SCAN_MODEL;
+    } else {
+      process.env.OPENAI_BRAND_SCAN_MODEL = originalModel;
+    }
+  }
 });
