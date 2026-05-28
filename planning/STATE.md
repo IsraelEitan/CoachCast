@@ -25,6 +25,7 @@ Last updated: 2026-05-28
 - Vercel Supabase env vars are configured for Production, Development, and Preview.
 - Supabase Auth URL configuration is complete for production, local development, and Vercel preview redirects.
 - Production was redeployed after env setup: `dpl_EgRR5RQqPzUYUsTDJCaG99qQQm54`.
+- Live production auth/workspace write validation passed with a confirmed test user; the test user and workspace were cleaned up.
 
 ## Active Delivery Focus
 
@@ -34,9 +35,13 @@ Current acceptance package:
 
 - `planning/acceptance/auth-workspace-onboarding.md`
 
+Current release gate:
+
+- `planning/RELEASE_READINESS.md`
+
 Immediate next engineering goals:
 
-1. Perform an approved live write test for sign-up, sign-in, workspace creation, and owner membership.
+1. Recheck public self-service sign-up after Supabase Auth rate limiting clears, or configure custom SMTP before real users.
 2. Replace selected mock reads with authenticated workspace queries.
 3. Add AI job creation through server actions or route handlers.
 4. Create a separate staging Supabase environment before real users or serious preview testing.
@@ -63,8 +68,9 @@ Production deployment validation:
 
 ## Known Gaps
 
+- Real-user release blockers are tracked in `planning/RELEASE_READINESS.md`.
 - Supabase `db lint --linked` timed out during remote validation and should be retried after the pooler auth circuit breaker clears.
-- Full live auth/workspace validation still needs an approved test account because it writes to production Auth and workspace tables.
+- Public self-service sign-up returned `sign-up-failed` while direct Supabase Auth sign-up returned HTTP 429, so the email sign-up path needs a later provider-rate-limit or SMTP check.
 - Rube, Composio, and Supabase MCP servers are present in Codex config, but their tools are not currently exposed in the callable tool list.
 - No staging environment is configured yet.
 - Optional local pre-push hook is committed in `.githooks/`; run `npm run hooks:install` to enable it locally.
@@ -119,6 +125,14 @@ Decision: configure Vercel Supabase variables for Production, Development, and P
 Evidence: production smoke passed; `/app` returns a 307 redirect to `/auth/sign-in?next=%2Fapp`; sign-in and sign-up server actions return validation redirects instead of `missing-config`.
 
 Why: production must be rebuilt after `NEXT_PUBLIC_` env changes so protected routes use live Supabase auth instead of demo fallback mode.
+
+### 2026-05-28: Validate Production Sign-In And Workspace Creation
+
+Decision: create a confirmed Supabase Auth test user through the Admin API, sign in through the production app, create a workspace through production onboarding, verify owner membership, and delete the test user.
+
+Evidence: production sign-in redirected to `/app`; `/app` redirected the no-workspace user to `/app/onboarding`; workspace creation redirected to `/app?status=workspace-created`; database verification found the workspace and `owner` membership; dashboard rendered the workspace name; cleanup left 0 matching Auth users and 0 matching workspaces.
+
+Why: this proves the deployed app, Supabase cookies, RLS-backed workspace insert, owner-membership trigger, and protected routing work together without leaving production test data behind.
 
 ### 2026-05-26: Supabase Foundation Merged
 
