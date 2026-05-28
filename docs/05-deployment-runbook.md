@@ -141,6 +141,16 @@ Do not add `AI_WORKER_SECRET` or `CRON_SECRET` to an environment until you inten
 
 The production Vercel Cron entry in `vercel.json` calls `/api/ai-jobs/brand-scan/run` once daily at `03:00 UTC`. Vercel sends `CRON_SECRET` as the bearer authorization header when that environment variable is configured. Keep `CRON_SECRET` server-only and rotate it like any other caller secret.
 
+For Vercel secrets that become HTTP header values, avoid stdin/file piping because hidden BOM or newline characters can make Vercel reject the deployment. Generate the value in memory and pass it with `--value`:
+
+```powershell
+$bytes = New-Object byte[] 32
+$rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+$rng.GetBytes($bytes)
+$secret = [Convert]::ToBase64String($bytes).Replace('+','-').Replace('/','_').TrimEnd('=')
+npx vercel env add CRON_SECRET production --value $secret --yes
+```
+
 ## Step 4: Configure Branch Protection
 
 Protect `main` after the first successful push.
