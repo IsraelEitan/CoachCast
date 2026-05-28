@@ -26,6 +26,7 @@ Last updated: 2026-05-28
 - Supabase Auth URL configuration is complete for production, local development, and Vercel preview redirects.
 - Production was redeployed after env setup: `dpl_EgRR5RQqPzUYUsTDJCaG99qQQm54`.
 - Live production auth/workspace write validation passed with a confirmed test user; the test user and workspace were cleaned up.
+- Live workspace, brand profile, and content idea reads use authenticated Supabase server queries; demo fixtures remain only for no-config demo mode.
 
 ## Active Delivery Focus
 
@@ -42,8 +43,8 @@ Current release gate:
 Immediate next engineering goals:
 
 1. Recheck public self-service sign-up after Supabase Auth rate limiting clears, or configure custom SMTP before real users.
-2. Replace selected mock reads with authenticated workspace queries.
-3. Add AI job creation through server actions or route handlers.
+2. Add AI job creation through server actions or route handlers.
+3. Implement the brand scan job that writes `brand_profiles`.
 4. Create a separate staging Supabase environment before real users or serious preview testing.
 
 ## Validation Baseline
@@ -73,6 +74,7 @@ Production deployment validation:
 - Public self-service sign-up returned `sign-up-failed` while direct Supabase Auth sign-up returned HTTP 429, so the email sign-up path needs a later provider-rate-limit or SMTP check.
 - Rube, Composio, and Supabase MCP servers are present in Codex config, but their tools are not currently exposed in the callable tool list.
 - No staging environment is configured yet.
+- Brand scan and idea generation are not implemented yet, so live workspaces show truthful empty states until AI jobs write rows.
 - Optional local pre-push hook is committed in `.githooks/`; run `npm run hooks:install` to enable it locally.
 - CI has dependency audit and a lightweight committed-secret scan; broader SAST/SBOM/image scanning are future hardening steps.
 - No AI prompt contracts or eval tests are implemented yet.
@@ -133,6 +135,14 @@ Decision: create a confirmed Supabase Auth test user through the Admin API, sign
 Evidence: production sign-in redirected to `/app`; `/app` redirected the no-workspace user to `/app/onboarding`; workspace creation redirected to `/app?status=workspace-created`; database verification found the workspace and `owner` membership; dashboard rendered the workspace name; cleanup left 0 matching Auth users and 0 matching workspaces.
 
 Why: this proves the deployed app, Supabase cookies, RLS-backed workspace insert, owner-membership trigger, and protected routing work together without leaving production test data behind.
+
+### 2026-05-28: Replace First Workspace Mock Reads
+
+Decision: add authenticated server-side workspace content queries for `brand_profiles` and `content_ideas`, keep fixtures only for no-config demo mode, and show empty states for live workspaces without generated AI rows.
+
+Evidence: mapper tests cover Supabase row-to-UI conversion; lint, TypeScript, and unit tests pass locally.
+
+Why: real trainers should never see fixture content presented as their own AI output. The app should either show tenant-scoped data from Supabase or clearly say that generation has not happened yet.
 
 ### 2026-05-26: Supabase Foundation Merged
 

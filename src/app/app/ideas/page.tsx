@@ -2,11 +2,41 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell/AppShell";
 import { getAppSession } from "@/lib/auth/app-session";
 import { mockContentIdeas } from "@/lib/fixtures/coachcast";
+import { getRecentContentIdeas } from "@/lib/workspaces/workspace-data";
 
 export const dynamic = "force-dynamic";
 
 export default async function IdeasPage() {
   const session = await getAppSession({ nextPath: "/app/ideas", requireWorkspace: true });
+  const contentIdeas =
+    session.authEnabled && session.workspace ? await getRecentContentIdeas(session.workspace.id) : mockContentIdeas;
+
+  if (session.authEnabled && contentIdeas.length === 0) {
+    return (
+      <AppShell
+        authEnabled={session.authEnabled}
+        title="Content ideas"
+        eyebrow="Step 3"
+        workspaceName={session.workspace?.name}
+      >
+        <section className="app-panel">
+          <h2>No saved ideas yet</h2>
+          <p>
+            This workspace does not have content ideas in Supabase yet. The next AI slice will turn the brand profile
+            into workspace-scoped ideas, then this page will render the saved rows.
+          </p>
+          <div className="app-actions">
+            <Link className="app-button" href="/app/profile">
+              View profile status
+            </Link>
+            <Link className="app-button app-button--secondary" href="/app">
+              Back to dashboard
+            </Link>
+          </div>
+        </section>
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell
@@ -16,7 +46,7 @@ export default async function IdeasPage() {
       workspaceName={session.workspace?.name}
     >
       <div className="idea-list">
-        {mockContentIdeas.map((idea) => (
+        {contentIdeas.map((idea) => (
           <article className="idea-card" key={idea.id}>
             <div>
               <span>{Math.round(idea.confidence * 100)}% fit</span>

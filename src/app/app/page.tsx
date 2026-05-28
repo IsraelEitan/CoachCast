@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell/AppShell";
 import { getAppSession } from "@/lib/auth/app-session";
 import { mockContentIdeas } from "@/lib/fixtures/coachcast";
+import { getWorkspaceStudioContent } from "@/lib/workspaces/workspace-data";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,12 @@ export default async function DashboardPage({ searchParams }: { searchParams: Da
   const params = await searchParams;
   const session = await getAppSession({ nextPath: "/app", requireWorkspace: true });
   const workspaceName = session.workspace?.name ?? "Demo workspace";
+  const liveStudioContent =
+    session.authEnabled && session.workspace ? await getWorkspaceStudioContent(session.workspace) : null;
+  const contentIdeas = session.authEnabled ? liveStudioContent?.contentIdeas ?? [] : mockContentIdeas;
+  const hasBrandProfile = session.authEnabled ? Boolean(liveStudioContent?.brandProfile) : true;
   const statusMessage = params.status ? statusMessages[params.status] : null;
+  const nextStepHref = session.authEnabled ? "/app/profile" : "/app/onboarding";
 
   return (
     <AppShell authEnabled={session.authEnabled} title="Your AI content production dashboard" workspaceName={workspaceName}>
@@ -29,24 +35,53 @@ export default async function DashboardPage({ searchParams }: { searchParams: Da
       <div className="app-grid app-grid--three">
         <article className="app-card">
           <span className="app-card__kicker">Next step</span>
-          <h2>{session.authEnabled ? `Run ${workspaceName}'s content scan` : "Run your content scan"}</h2>
-          <p>Create the brand profile that powers ideas, scripts, captions, and future render plans.</p>
-          <Link className="app-button" href="/app/onboarding">
-            Start scan
+          <h2>
+            {session.authEnabled
+              ? hasBrandProfile
+                ? `${workspaceName}'s profile is ready`
+                : `Prepare ${workspaceName}'s brand scan`
+              : "Run your content scan"}
+          </h2>
+          <p>
+            {session.authEnabled
+              ? "The workspace boundary is live. Brand scan generation is the next data-writing slice."
+              : "Create the brand profile that powers ideas, scripts, captions, and future render plans."}
+          </p>
+          <Link className="app-button" href={nextStepHref}>
+            {session.authEnabled ? "View profile status" : "Start scan"}
           </Link>
         </article>
         <article className="app-card">
           <span className="app-card__kicker">Ideas ready</span>
-          <h2>{mockContentIdeas.length} draft angles</h2>
-          <p>Mocked content ideas show the first production slice before real AI is connected.</p>
-          <Link className="app-button app-button--secondary" href="/app/ideas">
-            View ideas
+          <h2>
+            {contentIdeas.length} {session.authEnabled ? "saved angles" : "draft angles"}
+          </h2>
+          <p>
+            {session.authEnabled
+              ? contentIdeas.length > 0
+                ? "These ideas are loaded from your workspace through Supabase RLS."
+                : "No saved ideas yet. The next AI slice will generate these from your brand profile."
+              : "Mocked content ideas show the first production slice before real AI is connected."}
+          </p>
+          <Link
+            className="app-button app-button--secondary"
+            href={contentIdeas.length > 0 ? "/app/ideas" : "/app/profile"}
+          >
+            {contentIdeas.length > 0 ? "View ideas" : "View profile status"}
           </Link>
         </article>
         <article className="app-card">
           <span className="app-card__kicker">Pipeline</span>
-          <h2>Mock first, AI second</h2>
-          <p>We validate screens and data contracts before adding model calls, storage, or video workers.</p>
+          <h2>
+            {session.authEnabled ? (hasBrandProfile ? "Profile ready" : "Brand scan next") : "Mock first, AI second"}
+          </h2>
+          <p>
+            {session.authEnabled
+              ? hasBrandProfile
+                ? "Your latest brand profile is stored in Supabase and ready to feed idea generation."
+                : "Your workspace boundary is live. Next we connect the brand scan job that writes the profile."
+              : "We validate screens and data contracts before adding model calls, storage, or video workers."}
+          </p>
         </article>
       </div>
 

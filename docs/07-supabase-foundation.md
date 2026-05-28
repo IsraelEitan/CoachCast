@@ -43,6 +43,7 @@ Current live schema status:
 - Supabase Auth URL configuration is complete for production, local development, and Vercel preview redirects
 - production deployment `dpl_EgRR5RQqPzUYUsTDJCaG99qQQm54` was built after env setup
 - production sign-in and workspace creation were validated with a confirmed test user and cleaned up
+- live app routes read `workspaces`, `brand_profiles`, and `content_ideas` through authenticated Supabase server queries
 
 ## Environment Variables
 
@@ -79,8 +80,8 @@ Every application table has RLS enabled. Workspace-scoped content uses `public.i
 ## Next Implementation Steps
 
 1. Recheck public self-service sign-up after Supabase Auth rate limiting clears, or configure custom SMTP before real users.
-2. Replace fixture reads with authenticated workspace queries.
-3. Add AI job creation through server actions or route handlers.
+2. Add AI job creation through server actions or route handlers.
+3. Implement the brand scan job that writes `brand_profiles`.
 4. Create a separate staging Supabase environment before real users or serious preview testing.
 
 ## Operator Setup Commands
