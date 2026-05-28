@@ -48,7 +48,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Da
           </h2>
           <p>
             {session.authEnabled
-              ? "The workspace boundary is live. Brand scan generation is the next data-writing slice."
+              ? "The workspace boundary is live. The protected brand scan worker can write the first AI profile."
               : "Create the brand profile that powers ideas, scripts, captions, and future render plans."}
           </p>
           <Link className="app-button" href={nextStepHref}>

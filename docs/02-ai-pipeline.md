@@ -27,7 +27,7 @@ CoachCast stores AI work in `public.ai_jobs` before execution. The first live jo
 - `input.workspace`: workspace context needed by the scan
 - `input.source`: website and Instagram source fields
 
-This gives the product traceability before any model call exists. A later worker will claim queued jobs, call the structured brand scan prompt, write `brand_profiles`, and update the job to `succeeded` or `failed`.
+This gives the product traceability before any model call exists. The protected worker route claims queued jobs, calls the structured brand scan prompt when server-only OpenAI config exists, writes `brand_profiles`, and updates the job to `succeeded` or `failed`.
 
 ## Contracting Rules
 
@@ -41,6 +41,20 @@ Every AI job must define these before model execution:
 - persistence mapping into Supabase rows
 
 The current `brand_scan` contract is `brand-scan:v1`. It includes output validation for audience, tone, offers, content pillars, pain points, avoid-claim safety coverage, source confidence, source notes, and uncertainty notes.
+
+## Worker Execution
+
+`POST /api/ai-jobs/brand-scan/run` processes at most one queued `brand_scan` job per request.
+
+The route is intentionally disabled unless all server-only controls exist:
+
+- `AI_WORKER_SECRET`
+- `SUPABASE_SECRET_KEY`
+- `OPENAI_API_KEY`
+
+Callers must send `Authorization: Bearer <AI_WORKER_SECRET>`. The worker does not run from the browser and does not expose provider or service-role secrets.
+
+The first worker slice uses an optimistic claim: it selects the oldest queued `brand_scan` job, then updates that same row from `queued` to `running`. If another worker claimed it first, this run exits idle. A future database RPC can tighten this with `FOR UPDATE SKIP LOCKED` before high-volume or external beta use.
 
 ## Pipeline Overview
 
@@ -118,7 +132,7 @@ Personalization should happen once, then be reused. This reduces prompt cost, ke
 - Input contract version: `1`
 - Prompt version: `brand-scan:v1`
 - Eval fixtures: independent trainer, multi-trainer gym, unsafe medical positioning, minimal context.
-- Execution status: contract and eval tests exist; no OpenAI call or worker execution is connected yet.
+- Execution status: protected worker route and OpenAI adapter exist; live execution requires server-only config and a bearer worker secret.
 
 ## Stage 2: Content Strategist
 
