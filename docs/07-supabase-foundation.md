@@ -39,6 +39,9 @@ Current live schema status:
 - RLS is enabled on all 6 application tables
 - 24 public RLS policies exist
 - `src/lib/supabase/database.types.ts` is generated from the live project
+- Vercel Supabase env vars are configured for Production, Development, and Preview
+- Supabase Auth URL configuration is complete for production, local development, and Vercel preview redirects
+- production deployment `dpl_EgRR5RQqPzUYUsTDJCaG99qQQm54` was built after env setup
 
 ## Environment Variables
 
@@ -74,11 +77,10 @@ Every application table has RLS enabled. Workspace-scoped content uses `public.i
 
 ## Next Implementation Steps
 
-1. Add Supabase publishable and secret keys to Vercel Production, Development, and Preview.
-2. Configure Supabase Auth callback URLs for local, preview, and production origins.
-3. Validate sign-up, sign-in, sign-out, workspace creation, and owner membership in the browser.
-4. Replace fixture reads with authenticated workspace queries.
-5. Add AI job creation through server actions or route handlers.
+1. Perform an approved live write test for sign-up, sign-in, sign-out, workspace creation, and owner membership.
+2. Replace fixture reads with authenticated workspace queries.
+3. Add AI job creation through server actions or route handlers.
+4. Create a separate staging Supabase environment before real users or serious preview testing.
 
 ## Operator Setup Commands
 
@@ -125,3 +127,15 @@ https://coachcast-*-israeleitans-projects.vercel.app/**
 ```
 
 Supabase allows wildcards for preview URLs, but production should use exact redirect paths where practical.
+
+## Production Validation
+
+Non-mutating production checks completed on 2026-05-28:
+
+- `npm run smoke` passed against `https://coachcast-zeta.vercel.app`
+- `/app` returned `307` to `/auth/sign-in?next=%2Fapp`
+- sign-in with missing fields returned `/auth/sign-in?status=missing-fields`
+- sign-up with a short password returned `/auth/sign-up?status=invalid-sign-up`
+- no production check returned `missing-config`
+
+Full browser validation of sign-up, sign-in, workspace creation, and owner membership requires approval to create and later clean up a production test account.
