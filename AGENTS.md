@@ -217,6 +217,14 @@ Acceptance criteria should cover:
 
 Use `planning/acceptance/` for reusable or multi-step feature criteria.
 
+## Release Readiness Gate
+
+Use `planning/RELEASE_READINESS.md` as the durable release gate for anything that is deferred until "later", "before real users", "before production launch", "before paid traffic", or "before enabling this for customers".
+
+If a task discovers a production-readiness issue that must be handled before real users, update `planning/RELEASE_READINESS.md` in the same PR or create a follow-up issue and link it there. Do not leave real-user blockers only in chat, PR comments, or memory.
+
+Before any real-user release, external beta, or paid traffic, review `planning/RELEASE_READINESS.md` and resolve or explicitly reclassify every open release blocker.
+
 ## Reliability Rules
 
 - Do not claim success without evidence.

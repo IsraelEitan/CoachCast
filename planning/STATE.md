@@ -35,6 +35,10 @@ Current acceptance package:
 
 - `planning/acceptance/auth-workspace-onboarding.md`
 
+Current release gate:
+
+- `planning/RELEASE_READINESS.md`
+
 Immediate next engineering goals:
 
 1. Recheck public self-service sign-up after Supabase Auth rate limiting clears, or configure custom SMTP before real users.
@@ -64,6 +68,7 @@ Production deployment validation:
 
 ## Known Gaps
 
+- Real-user release blockers are tracked in `planning/RELEASE_READINESS.md`.
 - Supabase `db lint --linked` timed out during remote validation and should be retried after the pooler auth circuit breaker clears.
 - Public self-service sign-up returned `sign-up-failed` while direct Supabase Auth sign-up returned HTTP 429, so the email sign-up path needs a later provider-rate-limit or SMTP check.
 - Rube, Composio, and Supabase MCP servers are present in Codex config, but their tools are not currently exposed in the callable tool list.
