@@ -103,6 +103,8 @@ Add later:
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 - `SUPABASE_SECRET_KEY`
 - `OPENAI_API_KEY`
+- `OPENAI_BRAND_SCAN_MODEL`
+- `AI_WORKER_SECRET`
 - `R2_ACCOUNT_ID`
 - `R2_ACCESS_KEY_ID`
 - `R2_SECRET_ACCESS_KEY`
@@ -133,6 +135,8 @@ vercel env add NEXT_PUBLIC_SUPABASE_URL preview
 vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY preview
 vercel env add SUPABASE_SECRET_KEY preview
 ```
+
+Do not add `AI_WORKER_SECRET` to an environment until you intentionally want the protected worker route to be callable there. The route stays disabled without it.
 
 ## Step 4: Configure Branch Protection
 

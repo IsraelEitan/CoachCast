@@ -27,8 +27,8 @@ Last updated: 2026-05-28
 - Production was redeployed after env setup: `dpl_EgRR5RQqPzUYUsTDJCaG99qQQm54`.
 - Live production auth/workspace write validation passed with a confirmed test user; the test user and workspace were cleaned up.
 - Live workspace, brand profile, and content idea reads use authenticated Supabase server queries; demo fixtures remain only for no-config demo mode.
-- Authenticated workspaces can queue a `brand_scan` AI job; no worker or model call is connected yet.
-- `brand_scan` has a versioned prompt contract, output validator, and eval fixtures; no real model call is connected yet.
+- Authenticated workspaces can queue a `brand_scan` AI job; the protected worker route is available but not live-validated yet.
+- `brand_scan` has a versioned prompt contract, output validator, eval fixtures, protected worker route, and OpenAI adapter; live worker execution still requires server-only env config and validation.
 
 ## Active Delivery Focus
 
@@ -39,6 +39,7 @@ Current acceptance package:
 - `planning/acceptance/auth-workspace-onboarding.md`
 - `planning/acceptance/brand-scan-job-queue.md`
 - `planning/acceptance/brand-scan-contract.md`
+- `planning/acceptance/brand-scan-worker.md`
 
 Current release gate:
 
@@ -47,8 +48,8 @@ Current release gate:
 Immediate next engineering goals:
 
 1. Recheck public self-service sign-up after Supabase Auth rate limiting clears, or configure custom SMTP before real users.
-2. Implement a controlled brand scan worker that claims queued `brand_scan` jobs and validates output before writing `brand_profiles`.
-3. Add OpenAI API integration behind server-only env vars and cost/safety controls.
+2. Configure and validate one live protected brand scan worker run against a labeled test workspace.
+3. Decide whether worker invocation should use Vercel Cron, an operator-only runbook, or a later queue service.
 4. Create a separate staging Supabase environment before real users or serious preview testing.
 
 ## Validation Baseline
@@ -78,10 +79,11 @@ Production deployment validation:
 - Public self-service sign-up returned `sign-up-failed` while direct Supabase Auth sign-up returned HTTP 429, so the email sign-up path needs a later provider-rate-limit or SMTP check.
 - Rube, Composio, and Supabase MCP servers are present in Codex config, but their tools are not currently exposed in the callable tool list.
 - No staging environment is configured yet.
-- Brand scan job execution and idea generation are not implemented yet, so live workspaces show truthful empty states until AI jobs write rows.
+- Brand scan worker execution exists behind a protected API route, but live execution has not been validated yet; idea generation is not implemented.
 - Optional local pre-push hook is committed in `.githooks/`; run `npm run hooks:install` to enable it locally.
 - CI has dependency audit and a lightweight committed-secret scan; broader SAST/SBOM/image scanning are future hardening steps.
 - Brand scan has prompt contract/eval tests; remaining AI job kinds still need contracts and eval coverage.
+- Brand scan worker uses optimistic claim/update without a database transaction or `SKIP LOCKED` RPC; this is acceptable for controlled testing, not high-volume external beta.
 - No browser accessibility or visual regression suite is implemented yet.
 
 ## Decision Log
@@ -163,6 +165,14 @@ Decision: add `brand-scan:v1` prompt messages, a structured output contract, out
 Evidence: prompt contract tests prove versioning, schema inclusion, safe-output acceptance, unsafe-output rejection, prompt-version drift rejection, and eval fixture coverage.
 
 Why: the worker should not call a model until the AI boundary is explicit, testable, and safety-aware.
+
+### 2026-05-28: Add Protected Brand Scan Worker Route
+
+Decision: add a disabled-by-default `POST /api/ai-jobs/brand-scan/run` route guarded by `AI_WORKER_SECRET`, Supabase service config, and OpenAI config.
+
+Evidence: worker tests cover idle, invalid input, success, and invalid output paths. OpenAI adapter tests cover strict Structured Outputs request shape and provider error handling.
+
+Why: CoachCast needs an operator-controlled path from queued jobs to validated brand profiles before adding scheduling, broader AI jobs, or real-user traffic.
 
 ### 2026-05-26: Supabase Foundation Merged
 

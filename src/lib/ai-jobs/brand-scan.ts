@@ -35,7 +35,7 @@ export function getBrandScanJobMessage(job: BrandScanJobSummary | null) {
   }
 
   if (job.status === "queued") {
-    return "Brand scan is queued. The worker will process it when the execution slice is connected.";
+    return "Brand scan is queued. The worker will process it when the protected execution route runs.";
   }
 
   if (job.status === "running") {
