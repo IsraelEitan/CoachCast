@@ -19,6 +19,27 @@ This foundation adds:
 
 The app still runs without Supabase credentials so CI, previews, and mocked UX stay stable while the live Supabase project is connected.
 
+## Cloud Project
+
+Current Supabase project:
+
+```text
+Name: CoachCast
+Project ref: jqutwjhdupqmzhnydxzk
+Region: eu-central-1
+URL: https://jqutwjhdupqmzhnydxzk.supabase.co
+```
+
+The database password is private operator state. Do not commit it, paste it into chat, or store it in repo files. Use the Supabase dashboard password reset flow if it is lost.
+
+Current live schema status:
+
+- migration `202605260001` is applied remotely
+- 6 application tables exist
+- RLS is enabled on all 6 application tables
+- 24 public RLS policies exist
+- `src/lib/supabase/database.types.ts` is generated from the live project
+
 ## Environment Variables
 
 Use the current Supabase key names for new projects:
@@ -53,10 +74,54 @@ Every application table has RLS enabled. Workspace-scoped content uses `public.i
 
 ## Next Implementation Steps
 
-1. Create the Supabase project and add the environment variables to Vercel.
-2. Apply the migration to Supabase.
-3. Generate official database types from the live Supabase schema and replace the hand-written bootstrap type file.
-4. Configure Supabase Auth callback URLs for local, preview, and production origins.
-5. Validate sign-up, sign-in, sign-out, workspace creation, and owner membership in the browser.
-6. Replace fixture reads with authenticated workspace queries.
-7. Add AI job creation through server actions or route handlers.
+1. Add Supabase publishable and secret keys to Vercel Production, Development, and Preview.
+2. Configure Supabase Auth callback URLs for local, preview, and production origins.
+3. Validate sign-up, sign-in, sign-out, workspace creation, and owner membership in the browser.
+4. Replace fixture reads with authenticated workspace queries.
+5. Add AI job creation through server actions or route handlers.
+
+## Operator Setup Commands
+
+Run these from the repository root. Enter secrets only in the local terminal or provider dashboard.
+
+```powershell
+npx supabase link --project-ref jqutwjhdupqmzhnydxzk
+npx supabase db push --linked
+npx supabase gen types --project-id jqutwjhdupqmzhnydxzk --schema public --lang typescript | Out-File -FilePath src/lib/supabase/database.types.ts -Encoding utf8
+```
+
+Vercel requires these variables for each target environment:
+
+```text
+NEXT_PUBLIC_SUPABASE_URL=https://jqutwjhdupqmzhnydxzk.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<from Supabase Project Settings > API>
+SUPABASE_SECRET_KEY=<from Supabase Project Settings > API>
+```
+
+Use `vercel env add` interactively for secret values so keys are not printed into shell history or agent logs.
+
+```powershell
+npx vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY production
+npx vercel env add SUPABASE_SECRET_KEY production
+npx vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY development
+npx vercel env add SUPABASE_SECRET_KEY development
+npx vercel env add NEXT_PUBLIC_SUPABASE_URL preview
+npx vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY preview
+npx vercel env add SUPABASE_SECRET_KEY preview
+```
+
+## Supabase Auth URL Configuration
+
+Configure these in Supabase Dashboard > Authentication > URL Configuration:
+
+```text
+Site URL:
+https://coachcast-zeta.vercel.app
+
+Additional Redirect URLs:
+https://coachcast-zeta.vercel.app/**
+http://localhost:3000/**
+https://coachcast-*-israeleitans-projects.vercel.app/**
+```
+
+Supabase allows wildcards for preview URLs, but production should use exact redirect paths where practical.

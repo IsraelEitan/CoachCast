@@ -18,7 +18,11 @@ Last updated: 2026-05-27
 - Landing page, app dashboard, onboarding, profile, ideas, and script demo routes exist.
 - Mock fixtures drive the first product flow.
 - Supabase dependencies, typed clients, session proxy, auth routes, workspace onboarding actions, and initial schema migration are in the repo.
-- Real Supabase project connection and migration application are still pending.
+- Supabase cloud project exists: `CoachCast` / `jqutwjhdupqmzhnydxzk` in `eu-central-1`.
+- Vercel has `NEXT_PUBLIC_SUPABASE_URL` configured for Production and Development.
+- Supabase migration `202605260001` is applied to the live project.
+- Live Supabase TypeScript types have been generated into `src/lib/supabase/database.types.ts`.
+- Key-based Vercel env setup and Auth callback configuration are still pending.
 
 ## Active Delivery Focus
 
@@ -30,13 +34,11 @@ Current acceptance package:
 
 Immediate next engineering goals:
 
-1. Confirm why Rube/Composio/Supabase MCP tools are configured but not exposed to Codex.
-2. Confirm the Supabase project path: use an existing project or create a new CoachCast project.
-3. Apply `supabase/migrations/202605260001_initial_schema.sql`.
-4. Generate live Supabase TypeScript types.
-5. Add Supabase and auth callback URLs to Vercel.
-6. Validate sign-up, sign-in, workspace creation, and RLS against the live project.
-7. Replace selected mock reads with authenticated workspace queries.
+1. Add Supabase publishable and secret keys to Vercel Production, Development, and Preview.
+2. Configure Supabase Auth callback URLs for local, preview, and production origins.
+3. Validate sign-up, sign-in, workspace creation, and RLS against the live project.
+4. Replace selected mock reads with authenticated workspace queries.
+5. Add AI job creation through server actions or route handlers.
 
 ## Validation Baseline
 
@@ -60,7 +62,8 @@ Production deployment validation:
 
 ## Known Gaps
 
-- No live Supabase project has been verified from this repo yet.
+- Supabase `db lint --linked` timed out during remote validation and should be retried after the pooler auth circuit breaker clears.
+- Vercel Preview env still needs branch/all-preview configuration for Supabase variables.
 - Rube, Composio, and Supabase MCP servers are present in Codex config, but their tools are not currently exposed in the callable tool list.
 - No staging environment is configured yet.
 - Optional local pre-push hook is committed in `.githooks/`; run `npm run hooks:install` to enable it locally.
@@ -93,6 +96,20 @@ Why: auth, RLS, and workspace data boundaries are high-risk areas. A written wor
 Decision: add sign-in, sign-up, sign-out, request-time app route protection, and workspace creation server actions while keeping demo fallback behavior when Supabase environment variables are missing.
 
 Why: CoachCast needs a real tenant boundary before user content or AI outputs can be stored. The fallback keeps CI, previews, and demo routes stable until the live Supabase project is connected.
+
+### 2026-05-27: Create Supabase Cloud Project
+
+Decision: create the managed Supabase project `CoachCast` in `eu-central-1` with ref `jqutwjhdupqmzhnydxzk`.
+
+Why: the app needs a real Auth/Postgres/RLS target before validating workspace onboarding in production. Database password and key setup remain manual/secret-handled steps.
+
+### 2026-05-27: Apply Live Supabase Schema
+
+Decision: link the repo to Supabase project `jqutwjhdupqmzhnydxzk`, apply migration `202605260001`, and generate live TypeScript schema types.
+
+Evidence: remote migration history matches local migration `202605260001`; a read-only schema check found 6 application tables, RLS enabled on all 6, and 24 public policies.
+
+Why: live auth and workspace onboarding need the real tenant-isolated schema before browser validation or production rollout.
 
 ### 2026-05-26: Supabase Foundation Merged
 

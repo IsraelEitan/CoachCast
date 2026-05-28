@@ -16,7 +16,7 @@ The app should not depend on one developer machine. A deployment runbook gives u
 
 ## Current Local State
 
-The project is ready for the first cloud deploy, but the local machine is not yet connected to cloud accounts.
+The project is connected to GitHub and Vercel. Supabase cloud setup is in progress.
 
 Verified locally:
 
@@ -34,12 +34,11 @@ Current Vercel project:
 - Latest verified deployment: `dpl_5VFEgugXUndpkUyUqh4WjrAYH7JA`
 - Connected Git repository: `IsraelEitan/CoachCast`
 
-Missing before real deploy:
+Current remaining cloud setup:
 
-- GitHub remote repository
-- Vercel project connection
-- Vercel environment variables
-- branch protection rules
+- add Supabase publishable and server secret keys to Vercel
+- configure Supabase Auth callback URLs
+- validate the live auth and workspace onboarding flow
 
 ## Step 1: Create GitHub Repository
 
@@ -102,8 +101,8 @@ Add later:
 
 - `NEXT_PUBLIC_APP_URL`
 - `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SECRET_KEY`
 - `OPENAI_API_KEY`
 - `R2_ACCOUNT_ID`
 - `R2_ACCESS_KEY_ID`
@@ -114,10 +113,27 @@ Add later:
 - `INNGEST_SIGNING_KEY`
 - `SENTRY_DSN`
 
+Legacy Supabase fallback names are still supported by the app while Supabase keeps those key types available:
+
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
 Rule:
 
 - values with `NEXT_PUBLIC_` can be exposed to the browser
 - every other value is server-only
+
+Add secret values with the interactive CLI or the provider dashboard. Do not pass secret values in committed files or shared chat logs.
+
+```bash
+vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY production
+vercel env add SUPABASE_SECRET_KEY production
+vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY development
+vercel env add SUPABASE_SECRET_KEY development
+vercel env add NEXT_PUBLIC_SUPABASE_URL preview
+vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY preview
+vercel env add SUPABASE_SECRET_KEY preview
+```
 
 ## Step 4: Configure Branch Protection
 
