@@ -1,17 +1,35 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell/AppShell";
+import { createBrandScanJobAction } from "@/lib/ai-jobs/actions";
+import { getBrandScanJobMessage, getLatestBrandScanJob, isActiveBrandScanJob } from "@/lib/ai-jobs/brand-scan";
 import { getAppSession } from "@/lib/auth/app-session";
 import { mockBrandProfile } from "@/lib/fixtures/coachcast";
 import { getLatestBrandProfile } from "@/lib/workspaces/workspace-data";
 
 export const dynamic = "force-dynamic";
 
-export default async function ProfilePage() {
+type ProfileSearchParams = Promise<{
+  status?: string;
+}>;
+
+const statusMessages: Record<string, string> = {
+  "brand-scan-already-queued": "A brand scan job is already queued or running for this workspace.",
+  "brand-scan-error": "We could not queue the brand scan. Check the job table policy and try again.",
+  "brand-scan-queued": "Brand scan job queued. The worker execution slice comes next.",
+  demo: "Demo mode is active because Supabase is not configured yet."
+};
+
+export default async function ProfilePage({ searchParams }: { searchParams: ProfileSearchParams }) {
+  const params = await searchParams;
   const session = await getAppSession({ nextPath: "/app/profile", requireWorkspace: true });
   const workspaceName = session.workspace?.name ?? mockBrandProfile.workspaceName;
-  const liveBrandProfile =
-    session.authEnabled && session.workspace ? await getLatestBrandProfile(session.workspace) : null;
+  const [liveBrandProfile, latestBrandScanJob] =
+    session.authEnabled && session.workspace
+      ? await Promise.all([getLatestBrandProfile(session.workspace), getLatestBrandScanJob(session.workspace.id)])
+      : [null, null];
   const brandProfile = session.authEnabled ? liveBrandProfile : mockBrandProfile;
+  const isBrandScanActive = isActiveBrandScanJob(latestBrandScanJob);
+  const statusMessage = params.status ? statusMessages[params.status] : null;
 
   if (session.authEnabled && session.workspace && !brandProfile) {
     return (
@@ -23,6 +41,18 @@ export default async function ProfilePage() {
               {workspaceName} is connected as a live workspace. The brand profile table is empty until the brand scan
               job writes tone, audience, offers, content pillars, and safety boundaries.
             </p>
+
+            {statusMessage ? (
+              <p className="form-alert" role="status">
+                {statusMessage}
+              </p>
+            ) : null}
+
+            <section className="app-mini-card" aria-labelledby="brand-scan-status">
+              <h3 id="brand-scan-status">Brand scan job</h3>
+              <p>{getBrandScanJobMessage(latestBrandScanJob)}</p>
+            </section>
+
             <ul className="app-steps">
               <li>Audience: {session.workspace.audience_summary ?? "Not captured yet"}</li>
               <li>Offer: {session.workspace.primary_offer ?? "Not captured yet"}</li>
@@ -31,9 +61,17 @@ export default async function ProfilePage() {
               </li>
             </ul>
             <div className="app-actions">
-              <Link className="app-button" href="/app">
-                Back to dashboard
-              </Link>
+              {isBrandScanActive ? (
+                <Link className="app-button" href="/app/profile">
+                  Refresh status
+                </Link>
+              ) : (
+                <form action={createBrandScanJobAction}>
+                  <button className="app-button" type="submit">
+                    Queue brand scan
+                  </button>
+                </form>
+              )}
               <Link className="app-button app-button--secondary" href="/app/ideas">
                 View idea status
               </Link>
@@ -67,6 +105,12 @@ export default async function ProfilePage() {
         <section className="app-panel">
           <h2>{workspaceName}</h2>
           <p>{brandProfile.audience.summary}</p>
+
+          {statusMessage ? (
+            <p className="form-alert" role="status">
+              {statusMessage}
+            </p>
+          ) : null}
 
           <div className="app-chip-group" aria-label="Brand tone">
             {brandProfile.tone.map((tone) => (

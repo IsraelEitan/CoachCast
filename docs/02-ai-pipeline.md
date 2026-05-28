@@ -15,6 +15,20 @@ Each step should:
 
 This solves the biggest AI product risk: impressive demos that become unpredictable in real use.
 
+## Job Spine
+
+CoachCast stores AI work in `public.ai_jobs` before execution. The first live job slice queues `brand_scan` jobs with:
+
+- `workspace_id`: the tenant boundary
+- `created_by`: the authenticated user who requested the scan
+- `kind`: `brand_scan`
+- `status`: `queued`
+- `input.version`: the input contract version
+- `input.workspace`: workspace context needed by the scan
+- `input.source`: website and Instagram source fields
+
+This gives the product traceability before any model call exists. A later worker will claim queued jobs, call the structured brand scan prompt, write `brand_profiles`, and update the job to `succeeded` or `failed`.
+
 ## Pipeline Overview
 
 ```mermaid
@@ -340,4 +354,3 @@ Why:
 
 - The first three create product value without needing video infrastructure.
 - The later stages require files, storage, rendering, and background jobs.
-
