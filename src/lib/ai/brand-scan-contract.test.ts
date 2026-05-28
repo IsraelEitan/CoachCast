@@ -1,9 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  BRAND_SCAN_OUTPUT_SCHEMA_NAME,
   BRAND_SCAN_PROMPT_VERSION,
+  brandScanOutputJsonSchema,
   buildBrandScanInput,
   buildBrandScanPromptMessages,
+  validateBrandScanInput,
   validateBrandScanOutput,
   type BrandScanOutput
 } from "./brand-scan-contract";
@@ -54,6 +57,32 @@ test("brand scan prompt is versioned and includes the exact output schema reques
   assert.match(messages[0]?.content ?? "", /Return JSON only/);
   assert.match(messages[1]?.content ?? "", /outputSchema/);
   assert.match(messages[1]?.content ?? "", /Maya Strength/);
+});
+
+test("brand scan input validator accepts the queued job contract", () => {
+  assert.deepEqual(validateBrandScanInput(buildBrandScanInput(workspace)), {
+    ok: true,
+    value: buildBrandScanInput(workspace)
+  });
+});
+
+test("brand scan input validator rejects version drift", () => {
+  const result = validateBrandScanInput({
+    ...buildBrandScanInput(workspace),
+    version: 2
+  });
+
+  assert.equal(result.ok, false);
+  assert.match(result.ok ? "" : result.issues.join(" "), /version must be 1/);
+});
+
+test("brand scan output JSON schema is strict and named for OpenAI Structured Outputs", () => {
+  assert.equal(BRAND_SCAN_OUTPUT_SCHEMA_NAME, "brand_scan_profile");
+  assert.equal(brandScanOutputJsonSchema.additionalProperties, false);
+  assert.equal(brandScanOutputJsonSchema.properties.rawSummary.additionalProperties, false);
+  assert.deepEqual(brandScanOutputJsonSchema.properties.rawSummary.properties.promptVersion.enum, [
+    BRAND_SCAN_PROMPT_VERSION
+  ]);
 });
 
 test("brand scan output validator accepts a complete safe profile", () => {

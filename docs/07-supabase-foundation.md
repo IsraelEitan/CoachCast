@@ -46,6 +46,7 @@ Current live schema status:
 - live app routes read `workspaces`, `brand_profiles`, and `content_ideas` through authenticated Supabase server queries
 - live workspaces can queue `brand_scan` jobs in `ai_jobs` through authenticated Supabase server actions
 - `brand_scan` has a versioned prompt contract, output validator, and eval fixtures
+- a protected brand scan worker route can claim queued jobs, validate OpenAI output, and write `brand_profiles` when server-only config is present
 
 ## Environment Variables
 
@@ -66,6 +67,16 @@ SUPABASE_SERVICE_ROLE_KEY=
 
 Only variables prefixed with `NEXT_PUBLIC_` can be used in browser code. Secret keys are server-only.
 
+The protected brand scan worker also needs these server-only values before it can run:
+
+```text
+OPENAI_API_KEY=
+OPENAI_BRAND_SCAN_MODEL=gpt-5.4-mini
+AI_WORKER_SECRET=
+```
+
+`AI_WORKER_SECRET` is a caller secret for `POST /api/ai-jobs/brand-scan/run`; it is not a user auth token and must not be exposed to browser code.
+
 ## Data Model
 
 Core tables:
@@ -82,8 +93,8 @@ Every application table has RLS enabled. Workspace-scoped content uses `public.i
 ## Next Implementation Steps
 
 1. Recheck public self-service sign-up after Supabase Auth rate limiting clears, or configure custom SMTP before real users.
-2. Implement a controlled brand scan worker that claims queued `brand_scan` jobs and validates output before writing `brand_profiles`.
-3. Add OpenAI API integration behind server-only env vars and cost/safety controls.
+2. Configure and validate one live protected brand scan worker run against a labeled test workspace.
+3. Decide whether worker invocation should use Vercel Cron, an operator-only runbook, or a later queue service.
 4. Create a separate staging Supabase environment before real users or serious preview testing.
 
 ## Operator Setup Commands
@@ -96,12 +107,20 @@ npx supabase db push --linked
 npx supabase gen types --project-id jqutwjhdupqmzhnydxzk --schema public --lang typescript | Out-File -FilePath src/lib/supabase/database.types.ts -Encoding utf8
 ```
 
-Vercel requires these variables for each target environment:
+Vercel requires these Supabase variables for each target environment:
 
 ```text
 NEXT_PUBLIC_SUPABASE_URL=https://jqutwjhdupqmzhnydxzk.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<from Supabase Project Settings > API>
 SUPABASE_SECRET_KEY=<from Supabase Project Settings > API>
+```
+
+Add the worker variables only to environments where the protected worker should be callable:
+
+```text
+OPENAI_API_KEY=<from OpenAI platform>
+OPENAI_BRAND_SCAN_MODEL=gpt-5.4-mini
+AI_WORKER_SECRET=<generate a long random value>
 ```
 
 Use `vercel env add` interactively for secret values so keys are not printed into shell history or agent logs.
@@ -114,6 +133,9 @@ npx vercel env add SUPABASE_SECRET_KEY development
 npx vercel env add NEXT_PUBLIC_SUPABASE_URL preview
 npx vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY preview
 npx vercel env add SUPABASE_SECRET_KEY preview
+npx vercel env add OPENAI_API_KEY preview
+npx vercel env add OPENAI_BRAND_SCAN_MODEL preview
+npx vercel env add AI_WORKER_SECRET preview
 ```
 
 ## Supabase Auth URL Configuration

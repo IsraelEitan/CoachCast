@@ -15,7 +15,7 @@ type ProfileSearchParams = Promise<{
 const statusMessages: Record<string, string> = {
   "brand-scan-already-queued": "A brand scan job is already queued or running for this workspace.",
   "brand-scan-error": "We could not queue the brand scan. Check the job table policy and try again.",
-  "brand-scan-queued": "Brand scan job queued. The worker execution slice comes next.",
+  "brand-scan-queued": "Brand scan job queued. The protected worker route can process it when configured.",
   demo: "Demo mode is active because Supabase is not configured yet."
 };
 

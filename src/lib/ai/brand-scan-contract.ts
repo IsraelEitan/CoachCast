@@ -2,6 +2,7 @@ import type { WorkspaceSummary } from "../workspaces/workspace-data";
 
 export const BRAND_SCAN_INPUT_VERSION = 1;
 export const BRAND_SCAN_PROMPT_VERSION = "brand-scan:v1";
+export const BRAND_SCAN_OUTPUT_SCHEMA_NAME = "brand_scan_profile";
 
 export type BrandScanInput = {
   requestedOutput: "brand_profile";
@@ -53,7 +54,113 @@ export type BrandScanValidationResult =
       ok: false;
     };
 
-const brandScanOutputSchema = {
+export type BrandScanInputValidationResult =
+  | {
+      ok: true;
+      value: BrandScanInput;
+    }
+  | {
+      issues: string[];
+      ok: false;
+    };
+
+export const brandScanOutputJsonSchema = {
+  additionalProperties: false,
+  properties: {
+    audience: {
+      additionalProperties: false,
+      properties: {
+        ageRange: {
+          type: "string"
+        },
+        experienceLevel: {
+          type: "string"
+        },
+        summary: {
+          type: "string"
+        }
+      },
+      required: ["ageRange", "experienceLevel", "summary"],
+      type: "object"
+    },
+    avoidClaims: {
+      items: {
+        type: "string"
+      },
+      minItems: 5,
+      type: "array"
+    },
+    contentPillars: {
+      items: {
+        type: "string"
+      },
+      minItems: 2,
+      type: "array"
+    },
+    offers: {
+      items: {
+        type: "string"
+      },
+      type: "array"
+    },
+    painPoints: {
+      items: {
+        type: "string"
+      },
+      minItems: 2,
+      type: "array"
+    },
+    rawSummary: {
+      additionalProperties: false,
+      properties: {
+        promptVersion: {
+          enum: [BRAND_SCAN_PROMPT_VERSION],
+          type: "string"
+        },
+        safetyNotes: {
+          items: {
+            type: "string"
+          },
+          minItems: 1,
+          type: "array"
+        },
+        sourceConfidence: {
+          enum: ["high", "medium", "low"],
+          type: "string"
+        },
+        sourceNotes: {
+          items: {
+            type: "string"
+          },
+          minItems: 1,
+          type: "array"
+        },
+        summary: {
+          type: "string"
+        },
+        uncertainties: {
+          items: {
+            type: "string"
+          },
+          type: "array"
+        }
+      },
+      required: ["promptVersion", "safetyNotes", "sourceConfidence", "sourceNotes", "summary", "uncertainties"],
+      type: "object"
+    },
+    tone: {
+      items: {
+        type: "string"
+      },
+      minItems: 2,
+      type: "array"
+    }
+  },
+  required: ["audience", "avoidClaims", "contentPillars", "offers", "painPoints", "rawSummary", "tone"],
+  type: "object"
+} as const;
+
+const brandScanPromptSchema = {
   audience: {
     ageRange: "string",
     experienceLevel: "string",
@@ -89,6 +196,22 @@ function readString(record: Record<string, unknown>, key: string, issues: string
   }
 
   return value.trim();
+}
+
+function readNullableString(record: Record<string, unknown>, key: string, issues: string[]) {
+  const value = record[key];
+
+  if (value === null) {
+    return null;
+  }
+
+  if (typeof value !== "string") {
+    issues.push(`${key} must be a string or null.`);
+    return null;
+  }
+
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
 }
 
 function readStringArray(record: Record<string, unknown>, key: string, issues: string[], minLength = 1) {
@@ -151,7 +274,7 @@ export function buildBrandScanPromptMessages(input: BrandScanInput): BrandScanPr
       content: JSON.stringify(
         {
           input,
-          outputSchema: brandScanOutputSchema,
+          outputSchema: brandScanPromptSchema,
           task: "Analyze the workspace context and produce a brand profile for safe AI content generation."
         },
         null,
@@ -159,6 +282,62 @@ export function buildBrandScanPromptMessages(input: BrandScanInput): BrandScanPr
       )
     }
   ];
+}
+
+export function validateBrandScanInput(value: unknown): BrandScanInputValidationResult {
+  const issues: string[] = [];
+
+  if (!isRecord(value)) {
+    return {
+      issues: ["Input must be an object."],
+      ok: false
+    };
+  }
+
+  const sourceRecord = isRecord(value.source) ? value.source : null;
+  const workspaceRecord = isRecord(value.workspace) ? value.workspace : null;
+
+  if (value.version !== BRAND_SCAN_INPUT_VERSION) {
+    issues.push(`version must be ${BRAND_SCAN_INPUT_VERSION}.`);
+  }
+
+  if (value.requestedOutput !== "brand_profile") {
+    issues.push("requestedOutput must be brand_profile.");
+  }
+
+  if (!sourceRecord) {
+    issues.push("source must be an object.");
+  }
+
+  if (!workspaceRecord) {
+    issues.push("workspace must be an object.");
+  }
+
+  const input: BrandScanInput = {
+    requestedOutput: "brand_profile",
+    source: {
+      instagramHandle: sourceRecord ? readNullableString(sourceRecord, "instagramHandle", issues) : null,
+      websiteUrl: sourceRecord ? readNullableString(sourceRecord, "websiteUrl", issues) : null
+    },
+    version: BRAND_SCAN_INPUT_VERSION,
+    workspace: {
+      audienceSummary: workspaceRecord ? readNullableString(workspaceRecord, "audienceSummary", issues) : null,
+      name: workspaceRecord ? readString(workspaceRecord, "name", issues) : "",
+      primaryOffer: workspaceRecord ? readNullableString(workspaceRecord, "primaryOffer", issues) : null
+    }
+  };
+
+  if (issues.length > 0) {
+    return {
+      issues,
+      ok: false
+    };
+  }
+
+  return {
+    ok: true,
+    value: input
+  };
 }
 
 export function validateBrandScanOutput(value: unknown): BrandScanValidationResult {
