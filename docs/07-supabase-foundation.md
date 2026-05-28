@@ -45,6 +45,7 @@ Current live schema status:
 - production sign-in and workspace creation were validated with a confirmed test user and cleaned up
 - live app routes read `workspaces`, `brand_profiles`, and `content_ideas` through authenticated Supabase server queries
 - live workspaces can queue `brand_scan` jobs in `ai_jobs` through authenticated Supabase server actions
+- `brand_scan` has a versioned prompt contract, output validator, and eval fixtures
 
 ## Environment Variables
 
@@ -81,8 +82,8 @@ Every application table has RLS enabled. Workspace-scoped content uses `public.i
 ## Next Implementation Steps
 
 1. Recheck public self-service sign-up after Supabase Auth rate limiting clears, or configure custom SMTP before real users.
-2. Implement the brand scan worker that turns queued `brand_scan` jobs into `brand_profiles`.
-3. Define the structured OpenAI prompt contract and eval fixtures before enabling real model calls.
+2. Implement a controlled brand scan worker that claims queued `brand_scan` jobs and validates output before writing `brand_profiles`.
+3. Add OpenAI API integration behind server-only env vars and cost/safety controls.
 4. Create a separate staging Supabase environment before real users or serious preview testing.
 
 ## Operator Setup Commands

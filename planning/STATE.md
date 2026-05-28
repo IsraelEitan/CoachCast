@@ -28,6 +28,7 @@ Last updated: 2026-05-28
 - Live production auth/workspace write validation passed with a confirmed test user; the test user and workspace were cleaned up.
 - Live workspace, brand profile, and content idea reads use authenticated Supabase server queries; demo fixtures remain only for no-config demo mode.
 - Authenticated workspaces can queue a `brand_scan` AI job; no worker or model call is connected yet.
+- `brand_scan` has a versioned prompt contract, output validator, and eval fixtures; no real model call is connected yet.
 
 ## Active Delivery Focus
 
@@ -37,6 +38,7 @@ Current acceptance package:
 
 - `planning/acceptance/auth-workspace-onboarding.md`
 - `planning/acceptance/brand-scan-job-queue.md`
+- `planning/acceptance/brand-scan-contract.md`
 
 Current release gate:
 
@@ -45,8 +47,8 @@ Current release gate:
 Immediate next engineering goals:
 
 1. Recheck public self-service sign-up after Supabase Auth rate limiting clears, or configure custom SMTP before real users.
-2. Implement the brand scan worker that turns queued `brand_scan` jobs into `brand_profiles`.
-3. Define the structured OpenAI prompt contract and eval fixtures before enabling real model calls.
+2. Implement a controlled brand scan worker that claims queued `brand_scan` jobs and validates output before writing `brand_profiles`.
+3. Add OpenAI API integration behind server-only env vars and cost/safety controls.
 4. Create a separate staging Supabase environment before real users or serious preview testing.
 
 ## Validation Baseline
@@ -79,7 +81,7 @@ Production deployment validation:
 - Brand scan job execution and idea generation are not implemented yet, so live workspaces show truthful empty states until AI jobs write rows.
 - Optional local pre-push hook is committed in `.githooks/`; run `npm run hooks:install` to enable it locally.
 - CI has dependency audit and a lightweight committed-secret scan; broader SAST/SBOM/image scanning are future hardening steps.
-- No AI prompt contracts or eval tests are implemented yet.
+- Brand scan has prompt contract/eval tests; remaining AI job kinds still need contracts and eval coverage.
 - No browser accessibility or visual regression suite is implemented yet.
 
 ## Decision Log
@@ -153,6 +155,14 @@ Decision: add a server action that creates `brand_scan` rows in `ai_jobs` throug
 Evidence: brand scan input/status tests, lint, TypeScript, and unit tests pass locally.
 
 Why: the AI pipeline needs durable, workspace-scoped job records before model calls or background workers are connected. This gives us traceability without adding model risk yet.
+
+### 2026-05-28: Define Brand Scan Prompt Contract
+
+Decision: add `brand-scan:v1` prompt messages, a structured output contract, output validation, and eval fixtures for trainer, gym, safety, and edge-case inputs.
+
+Evidence: prompt contract tests prove versioning, schema inclusion, safe-output acceptance, unsafe-output rejection, prompt-version drift rejection, and eval fixture coverage.
+
+Why: the worker should not call a model until the AI boundary is explicit, testable, and safety-aware.
 
 ### 2026-05-26: Supabase Foundation Merged
 

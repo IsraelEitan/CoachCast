@@ -1,3 +1,4 @@
+import { buildBrandScanInput } from "../ai/brand-scan-contract";
 import type { Database, Json } from "../supabase/database.types";
 import { createSupabaseServerClient } from "../supabase/server";
 import type { WorkspaceSummary } from "../workspaces/workspace-data";
@@ -20,37 +21,9 @@ export type BrandScanJobCreateResult =
       status: "create-error";
     };
 
-type BrandScanInput = {
-  requestedOutput: "brand_profile";
-  source: {
-    instagramHandle: string | null;
-    websiteUrl: string | null;
-  };
-  version: 1;
-  workspace: {
-    audienceSummary: string | null;
-    name: string;
-    primaryOffer: string | null;
-  };
-};
-
 const activeBrandScanStatuses = new Set(["queued", "running"]);
 
-export function buildBrandScanInput(workspace: WorkspaceSummary): BrandScanInput {
-  return {
-    requestedOutput: "brand_profile",
-    source: {
-      instagramHandle: workspace.instagram_handle,
-      websiteUrl: workspace.website_url
-    },
-    version: 1,
-    workspace: {
-      audienceSummary: workspace.audience_summary,
-      name: workspace.name,
-      primaryOffer: workspace.primary_offer
-    }
-  };
-}
+export { buildBrandScanInput };
 
 export function isActiveBrandScanJob(job: BrandScanJobSummary | null) {
   return Boolean(job && activeBrandScanStatuses.has(job.status));

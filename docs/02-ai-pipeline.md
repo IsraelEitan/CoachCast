@@ -29,6 +29,19 @@ CoachCast stores AI work in `public.ai_jobs` before execution. The first live jo
 
 This gives the product traceability before any model call exists. A later worker will claim queued jobs, call the structured brand scan prompt, write `brand_profiles`, and update the job to `succeeded` or `failed`.
 
+## Contracting Rules
+
+Every AI job must define these before model execution:
+
+- input contract version
+- prompt version
+- structured output contract
+- validation rules
+- eval fixtures for common, edge, and unsafe cases
+- persistence mapping into Supabase rows
+
+The current `brand_scan` contract is `brand-scan:v1`. It includes output validation for audience, tone, offers, content pillars, pain points, avoid-claim safety coverage, source confidence, source notes, and uncertainty notes.
+
 ## Pipeline Overview
 
 ```mermaid
@@ -99,6 +112,13 @@ Create a reusable profile that every later AI step can rely on.
 ### Rationale
 
 Personalization should happen once, then be reused. This reduces prompt cost, keeps output consistent, and avoids rewriting the same context for every script.
+
+### Current Contract
+
+- Input contract version: `1`
+- Prompt version: `brand-scan:v1`
+- Eval fixtures: independent trainer, multi-trainer gym, unsafe medical positioning, minimal context.
+- Execution status: contract and eval tests exist; no OpenAI call or worker execution is connected yet.
 
 ## Stage 2: Content Strategist
 

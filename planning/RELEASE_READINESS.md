@@ -187,14 +187,15 @@ Current evidence:
 
 - Mock fixtures drive current product screens.
 - `brand_scan` jobs can be queued, but no worker executes them yet.
-- No AI prompt contracts or eval tests are implemented yet.
+- `brand_scan` has a versioned prompt contract, output validator, and eval fixtures.
+- Other AI job kinds do not have prompt contracts or eval tests yet.
 
 Required resolution:
 
 - Add a worker or controlled execution path that claims queued AI jobs and updates status idempotently.
-- Define structured input/output contracts for each AI job kind.
+- Define structured input/output contracts for each remaining AI job kind.
 - Add prompt/version metadata to generated outputs.
-- Add eval fixtures for typical trainers, gyms, edge cases, unsafe claims, and unsupported medical/fitness claims.
+- Expand eval fixtures with real model outputs before enabling external beta or paid traffic.
 - Add reviewable logs that avoid storing secrets or unnecessary personal data.
 
 Validation evidence:
