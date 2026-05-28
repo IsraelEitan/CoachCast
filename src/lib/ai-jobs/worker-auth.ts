@@ -1,7 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 
 function firstConfiguredValue(...values: Array<string | undefined>) {
-  return values.find((value) => value !== undefined && value.trim().length > 0);
+  return values.find((value) => value !== undefined && value.trim().length > 0)?.trim();
 }
 
 export function getAiWorkerSecret() {
