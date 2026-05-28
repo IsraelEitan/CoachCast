@@ -158,6 +158,8 @@ Never expose secrets in logs, PRs, screenshots, comments, or final reports.
 
 For destructive external actions, such as deleting data, dropping tables, rotating secrets, or changing production configuration, stop for explicit user approval.
 
+When setting Vercel environment variables that are later used as HTTP header values, especially `CRON_SECRET`, avoid stdin/file piping. Generate the value in memory and use `vercel env add NAME production --value $secret --yes` so hidden BOM/newline characters do not break production builds.
+
 ## Review Matrix
 
 Use isolated review passes when risk increases:
