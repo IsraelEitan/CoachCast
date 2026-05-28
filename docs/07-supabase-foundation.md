@@ -42,6 +42,7 @@ Current live schema status:
 - Vercel Supabase env vars are configured for Production, Development, and Preview
 - Supabase Auth URL configuration is complete for production, local development, and Vercel preview redirects
 - production deployment `dpl_EgRR5RQqPzUYUsTDJCaG99qQQm54` was built after env setup
+- production sign-in and workspace creation were validated with a confirmed test user and cleaned up
 
 ## Environment Variables
 
@@ -77,7 +78,7 @@ Every application table has RLS enabled. Workspace-scoped content uses `public.i
 
 ## Next Implementation Steps
 
-1. Perform an approved live write test for sign-up, sign-in, sign-out, workspace creation, and owner membership.
+1. Recheck public self-service sign-up after Supabase Auth rate limiting clears, or configure custom SMTP before real users.
 2. Replace fixture reads with authenticated workspace queries.
 3. Add AI job creation through server actions or route handlers.
 4. Create a separate staging Supabase environment before real users or serious preview testing.
@@ -138,4 +139,14 @@ Non-mutating production checks completed on 2026-05-28:
 - sign-up with a short password returned `/auth/sign-up?status=invalid-sign-up`
 - no production check returned `missing-config`
 
-Full browser validation of sign-up, sign-in, workspace creation, and owner membership requires approval to create and later clean up a production test account.
+Production write validation completed on 2026-05-28:
+
+- created a confirmed test user through Supabase Admin API
+- signed in through the production app and received `/app`
+- verified `/app` redirected the no-workspace user to `/app/onboarding`
+- created a workspace through the production onboarding server action
+- verified the workspace row and `owner` membership in Supabase
+- verified the production dashboard rendered the workspace name
+- deleted the test Auth user and verified 0 matching users/workspaces remained
+
+The public self-service sign-up email flow still needs a later check. During validation, app sign-up returned `sign-up-failed` and direct Supabase Auth sign-up returned HTTP 429, consistent with provider-side sign-up/email rate limiting.

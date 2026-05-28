@@ -36,7 +36,7 @@ Current Vercel project:
 
 Current remaining cloud setup:
 
-- perform an approved live write test for auth and workspace onboarding
+- recheck public self-service sign-up after Supabase Auth rate limiting clears, or configure custom SMTP before real users
 - create a separate staging Supabase project before real users or serious preview testing
 
 ## Step 1: Create GitHub Repository
