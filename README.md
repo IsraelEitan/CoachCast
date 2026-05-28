@@ -106,7 +106,10 @@ The protected brand scan worker stays disabled unless these server-only values a
 OPENAI_API_KEY=
 OPENAI_BRAND_SCAN_MODEL=
 AI_WORKER_SECRET=
+CRON_SECRET=
 ```
+
+`AI_WORKER_SECRET` is for operator-triggered worker calls. `CRON_SECRET` is for Vercel Cron invocations and must also stay server-only.
 
 The initial database contract lives in [supabase/migrations/202605260001_initial_schema.sql](./supabase/migrations/202605260001_initial_schema.sql).
 

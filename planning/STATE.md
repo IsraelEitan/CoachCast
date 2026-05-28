@@ -28,7 +28,7 @@ Last updated: 2026-05-28
 - Live production auth/workspace write validation passed with a confirmed test user; the test user and workspace were cleaned up.
 - Live workspace, brand profile, and content idea reads use authenticated Supabase server queries; demo fixtures remain only for no-config demo mode.
 - Authenticated workspaces can queue a `brand_scan` AI job; the protected worker route processed a live production `brand_scan` job against disposable test data and wrote a ready brand profile.
-- `brand_scan` has a versioned prompt contract, output validator, eval fixtures, protected worker route, OpenAI adapter, production env config, and live E2E validation. Scheduling/operator invocation and high-volume locking are still open.
+- `brand_scan` has a versioned prompt contract, output validator, eval fixtures, protected worker route, OpenAI adapter, production env config, live E2E validation, and a daily Vercel Cron invocation path. High-volume locking is still open.
 
 ## Active Delivery Focus
 
@@ -48,7 +48,7 @@ Current release gate:
 Immediate next engineering goals:
 
 1. Recheck public self-service sign-up after Supabase Auth rate limiting clears, or configure custom SMTP before real users.
-2. Decide whether worker invocation should use Vercel Cron, an operator-only runbook, or a later queue service.
+2. Monitor the daily Vercel Cron worker path and decide when the product needs a more frequent schedule or a later queue service.
 3. Add the next AI pipeline slice after `brand_scan` only with a prompt contract, eval fixture, and worker validation plan.
 4. Create a separate staging Supabase environment before real users or serious preview testing.
 
@@ -79,7 +79,7 @@ Production deployment validation:
 - Public self-service sign-up returned `sign-up-failed` while direct Supabase Auth sign-up returned HTTP 429, so the email sign-up path needs a later provider-rate-limit or SMTP check.
 - Rube, Composio, and Supabase MCP servers are present in Codex config, but their tools are not currently exposed in the callable tool list.
 - No staging environment is configured yet.
-- Brand scan worker execution is live-validated behind a protected API route, but invocation is still manual/operator-controlled; idea generation is not implemented.
+- Brand scan worker execution is live-validated behind a protected API route with a daily Vercel Cron invocation path; idea generation is not implemented.
 - Optional local pre-push hook is committed in `.githooks/`; run `npm run hooks:install` to enable it locally.
 - CI has dependency audit and a lightweight committed-secret scan; broader SAST/SBOM/image scanning are future hardening steps.
 - Brand scan has prompt contract/eval tests; remaining AI job kinds still need contracts and eval coverage.

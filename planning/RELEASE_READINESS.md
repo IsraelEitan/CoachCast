@@ -193,8 +193,8 @@ Current evidence:
 
 Required resolution:
 
-- Configure `AI_WORKER_SECRET`, `OPENAI_API_KEY`, and `OPENAI_BRAND_SCAN_MODEL` intentionally per non-production environment before enabling live worker calls outside Production.
-- Add automatic scheduling or an approved operator runbook for worker invocation.
+- Configure `AI_WORKER_SECRET`, `CRON_SECRET`, `OPENAI_API_KEY`, and `OPENAI_BRAND_SCAN_MODEL` intentionally per non-production environment before enabling live worker calls outside Production.
+- Monitor the daily Vercel Cron invocation path and decide whether the schedule is sufficient before external beta.
 - Add transactional job completion or a Postgres RPC with `FOR UPDATE SKIP LOCKED` before high-volume external beta use.
 - Define structured input/output contracts for each remaining AI job kind.
 - Add prompt/version metadata to generated outputs.
