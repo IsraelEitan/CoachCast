@@ -100,6 +100,14 @@ SUPABASE_SECRET_KEY=
 
 Legacy Supabase `anon` and `service_role` keys are still supported as fallbacks for existing projects, but new projects should use publishable and secret keys.
 
+The protected brand scan worker stays disabled unless these server-only values are configured:
+
+```text
+OPENAI_API_KEY=
+OPENAI_BRAND_SCAN_MODEL=
+AI_WORKER_SECRET=
+```
+
 The initial database contract lives in [supabase/migrations/202605260001_initial_schema.sql](./supabase/migrations/202605260001_initial_schema.sql).
 
 ## Repository Workflow
