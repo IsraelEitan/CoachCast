@@ -31,14 +31,13 @@ Current Vercel project:
 
 - Project: `israeleitans-projects/coachcast`
 - Production URL: `https://coachcast-zeta.vercel.app`
-- Latest verified deployment: `dpl_5VFEgugXUndpkUyUqh4WjrAYH7JA`
+- Latest verified deployment: `dpl_EgRR5RQqPzUYUsTDJCaG99qQQm54`
 - Connected Git repository: `IsraelEitan/CoachCast`
 
 Current remaining cloud setup:
 
-- add Supabase publishable and server secret keys to Vercel
-- configure Supabase Auth callback URLs
-- validate the live auth and workspace onboarding flow
+- perform an approved live write test for auth and workspace onboarding
+- create a separate staging Supabase project before real users or serious preview testing
 
 ## Step 1: Create GitHub Repository
 
