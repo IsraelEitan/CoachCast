@@ -105,6 +105,7 @@ Add later:
 - `OPENAI_API_KEY`
 - `OPENAI_BRAND_SCAN_MODEL`
 - `AI_WORKER_SECRET`
+- `CRON_SECRET`
 - `R2_ACCOUNT_ID`
 - `R2_ACCESS_KEY_ID`
 - `R2_SECRET_ACCESS_KEY`
@@ -136,7 +137,9 @@ vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY preview
 vercel env add SUPABASE_SECRET_KEY preview
 ```
 
-Do not add `AI_WORKER_SECRET` to an environment until you intentionally want the protected worker route to be callable there. The route stays disabled without it.
+Do not add `AI_WORKER_SECRET` or `CRON_SECRET` to an environment until you intentionally want the protected worker route to be callable there. The route stays disabled without at least one of those caller secrets.
+
+The production Vercel Cron entry in `vercel.json` calls `/api/ai-jobs/brand-scan/run` once daily at `03:00 UTC`. Vercel sends `CRON_SECRET` as the bearer authorization header when that environment variable is configured. Keep `CRON_SECRET` server-only and rotate it like any other caller secret.
 
 ## Step 4: Configure Branch Protection
 

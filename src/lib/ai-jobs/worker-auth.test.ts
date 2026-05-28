@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getAiWorkerSecret, isAuthorizedWorkerRequest, readBearerToken } from "./worker-auth";
+import {
+  getAiWorkerSecret,
+  getConfiguredWorkerSecrets,
+  getCronSecret,
+  isAuthorizedWorkerRequest,
+  isAuthorizedWorkerRequestWithAnySecret,
+  readBearerToken
+} from "./worker-auth";
 
 test("worker auth reads bearer tokens", () => {
   assert.equal(readBearerToken("Bearer abc123"), "abc123");
@@ -27,6 +34,38 @@ test("worker auth trims configured secret whitespace", () => {
       delete process.env.AI_WORKER_SECRET;
     } else {
       process.env.AI_WORKER_SECRET = originalSecret;
+    }
+  }
+});
+
+test("worker auth reads AI and cron worker secrets", () => {
+  const originalAiSecret = process.env.AI_WORKER_SECRET;
+  const originalCronSecret = process.env.CRON_SECRET;
+
+  try {
+    process.env.AI_WORKER_SECRET = " manual-worker-secret \n";
+    process.env.CRON_SECRET = " cron-worker-secret \n";
+
+    assert.equal(getAiWorkerSecret(), "manual-worker-secret");
+    assert.equal(getCronSecret(), "cron-worker-secret");
+    assert.deepEqual(getConfiguredWorkerSecrets(), ["manual-worker-secret", "cron-worker-secret"]);
+    assert.equal(
+      isAuthorizedWorkerRequestWithAnySecret(getConfiguredWorkerSecrets(), "Bearer manual-worker-secret"),
+      true
+    );
+    assert.equal(isAuthorizedWorkerRequestWithAnySecret(getConfiguredWorkerSecrets(), "Bearer cron-worker-secret"), true);
+    assert.equal(isAuthorizedWorkerRequestWithAnySecret(getConfiguredWorkerSecrets(), "Bearer wrong-secret"), false);
+  } finally {
+    if (originalAiSecret === undefined) {
+      delete process.env.AI_WORKER_SECRET;
+    } else {
+      process.env.AI_WORKER_SECRET = originalAiSecret;
+    }
+
+    if (originalCronSecret === undefined) {
+      delete process.env.CRON_SECRET;
+    } else {
+      process.env.CRON_SECRET = originalCronSecret;
     }
   }
 });

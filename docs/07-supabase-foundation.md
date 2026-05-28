@@ -73,9 +73,10 @@ The protected brand scan worker also needs these server-only values before it ca
 OPENAI_API_KEY=
 OPENAI_BRAND_SCAN_MODEL=gpt-5.4-mini
 AI_WORKER_SECRET=
+CRON_SECRET=
 ```
 
-`AI_WORKER_SECRET` is a caller secret for `POST /api/ai-jobs/brand-scan/run`; it is not a user auth token and must not be exposed to browser code.
+`AI_WORKER_SECRET` is a caller secret for operator-triggered `POST /api/ai-jobs/brand-scan/run` calls. `CRON_SECRET` is the caller secret Vercel Cron sends to `GET /api/ai-jobs/brand-scan/run`. Neither value is a user auth token, and neither must be exposed to browser code.
 
 ## Data Model
 
@@ -93,8 +94,8 @@ Every application table has RLS enabled. Workspace-scoped content uses `public.i
 ## Next Implementation Steps
 
 1. Recheck public self-service sign-up after Supabase Auth rate limiting clears, or configure custom SMTP before real users.
-2. Configure and validate one live protected brand scan worker run against a labeled test workspace.
-3. Decide whether worker invocation should use Vercel Cron, an operator-only runbook, or a later queue service.
+2. Monitor the daily Vercel Cron worker path and decide when to move to a more frequent schedule or a later queue service.
+3. Add the next AI pipeline slice only after defining a prompt contract, eval fixture, and worker validation plan.
 4. Create a separate staging Supabase environment before real users or serious preview testing.
 
 ## Operator Setup Commands
@@ -121,6 +122,7 @@ Add the worker variables only to environments where the protected worker should 
 OPENAI_API_KEY=<from OpenAI platform>
 OPENAI_BRAND_SCAN_MODEL=gpt-5.4-mini
 AI_WORKER_SECRET=<generate a long random value>
+CRON_SECRET=<generate a long random value>
 ```
 
 Use `vercel env add` interactively for secret values so keys are not printed into shell history or agent logs.
@@ -136,6 +138,7 @@ npx vercel env add SUPABASE_SECRET_KEY preview
 npx vercel env add OPENAI_API_KEY preview
 npx vercel env add OPENAI_BRAND_SCAN_MODEL preview
 npx vercel env add AI_WORKER_SECRET preview
+npx vercel env add CRON_SECRET preview
 ```
 
 ## Supabase Auth URL Configuration

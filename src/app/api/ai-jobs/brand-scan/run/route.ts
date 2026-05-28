@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createOpenAiBrandScanGenerator, getOpenAiBrandScanConfig } from "@/lib/ai/openai-brand-scan";
 import { createSupabaseBrandScanWorkerRepository, runBrandScanWorkerOnce } from "@/lib/ai-jobs/brand-scan-worker";
-import { getAiWorkerSecret, isAuthorizedWorkerRequest } from "@/lib/ai-jobs/worker-auth";
+import { getConfiguredWorkerSecrets, isAuthorizedWorkerRequestWithAnySecret } from "@/lib/ai-jobs/worker-auth";
 import { getSupabaseServiceConfig } from "@/lib/supabase/env";
 
 export const dynamic = "force-dynamic";
@@ -17,10 +17,10 @@ function jsonResponse(body: Record<string, unknown>, status = 200) {
   });
 }
 
-export async function POST(request: NextRequest) {
-  const workerSecret = getAiWorkerSecret();
+async function runWorkerRequest(request: NextRequest) {
+  const workerSecrets = getConfiguredWorkerSecrets();
 
-  if (!workerSecret) {
+  if (workerSecrets.length === 0) {
     return jsonResponse(
       {
         reason: "missing-worker-secret",
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!isAuthorizedWorkerRequest(workerSecret, request.headers.get("authorization"))) {
+  if (!isAuthorizedWorkerRequestWithAnySecret(workerSecrets, request.headers.get("authorization"))) {
     return jsonResponse(
       {
         status: "unauthorized"
@@ -77,4 +77,12 @@ export async function POST(request: NextRequest) {
       500
     );
   }
+}
+
+export async function GET(request: NextRequest) {
+  return runWorkerRequest(request);
+}
+
+export async function POST(request: NextRequest) {
+  return runWorkerRequest(request);
 }

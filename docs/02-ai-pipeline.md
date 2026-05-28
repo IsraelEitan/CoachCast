@@ -44,15 +44,20 @@ The current `brand_scan` contract is `brand-scan:v1`. It includes output validat
 
 ## Worker Execution
 
-`POST /api/ai-jobs/brand-scan/run` processes at most one queued `brand_scan` job per request.
+`POST /api/ai-jobs/brand-scan/run` processes at most one queued `brand_scan` job per request for operator-triggered runs.
+
+`GET /api/ai-jobs/brand-scan/run` supports Vercel Cron and also processes at most one queued `brand_scan` job per request.
 
 The route is intentionally disabled unless all server-only controls exist:
 
 - `AI_WORKER_SECRET`
+- `CRON_SECRET` for Vercel Cron invocations
 - `SUPABASE_SECRET_KEY`
 - `OPENAI_API_KEY`
 
-Callers must send `Authorization: Bearer <AI_WORKER_SECRET>`. The worker does not run from the browser and does not expose provider or service-role secrets.
+Callers must send `Authorization: Bearer <AI_WORKER_SECRET>` for manual operator runs or `Authorization: Bearer <CRON_SECRET>` for Vercel Cron runs. The worker does not run from the browser and does not expose provider or service-role secrets.
+
+Production Vercel Cron is configured in `vercel.json` to call the worker once daily at `03:00 UTC`. This is intentionally conservative and compatible with Vercel Hobby plan limits. Move to a more frequent schedule only after the Vercel plan and queue behavior justify it.
 
 The first worker slice uses an optimistic claim: it selects the oldest queued `brand_scan` job, then updates that same row from `queued` to `running`. If another worker claimed it first, this run exits idle. A future database RPC can tighten this with `FOR UPDATE SKIP LOCKED` before high-volume or external beta use.
 
@@ -132,7 +137,7 @@ Personalization should happen once, then be reused. This reduces prompt cost, ke
 - Input contract version: `1`
 - Prompt version: `brand-scan:v1`
 - Eval fixtures: independent trainer, multi-trainer gym, unsafe medical positioning, minimal context.
-- Execution status: protected worker route and OpenAI adapter exist; live execution requires server-only config and a bearer worker secret.
+- Execution status: protected worker route, OpenAI adapter, live production validation, and daily Vercel Cron configuration exist; high-volume locking and the remaining AI job kinds are still future work.
 
 ## Stage 2: Content Strategist
 
