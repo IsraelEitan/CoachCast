@@ -27,6 +27,7 @@ Last updated: 2026-05-28
 - Production was redeployed after env setup: `dpl_EgRR5RQqPzUYUsTDJCaG99qQQm54`.
 - Live production auth/workspace write validation passed with a confirmed test user; the test user and workspace were cleaned up.
 - Live workspace, brand profile, and content idea reads use authenticated Supabase server queries; demo fixtures remain only for no-config demo mode.
+- Authenticated workspaces can queue a `brand_scan` AI job; no worker or model call is connected yet.
 
 ## Active Delivery Focus
 
@@ -35,6 +36,7 @@ Phase: Supabase/Auth foundation to real workspace onboarding.
 Current acceptance package:
 
 - `planning/acceptance/auth-workspace-onboarding.md`
+- `planning/acceptance/brand-scan-job-queue.md`
 
 Current release gate:
 
@@ -43,8 +45,8 @@ Current release gate:
 Immediate next engineering goals:
 
 1. Recheck public self-service sign-up after Supabase Auth rate limiting clears, or configure custom SMTP before real users.
-2. Add AI job creation through server actions or route handlers.
-3. Implement the brand scan job that writes `brand_profiles`.
+2. Implement the brand scan worker that turns queued `brand_scan` jobs into `brand_profiles`.
+3. Define the structured OpenAI prompt contract and eval fixtures before enabling real model calls.
 4. Create a separate staging Supabase environment before real users or serious preview testing.
 
 ## Validation Baseline
@@ -74,7 +76,7 @@ Production deployment validation:
 - Public self-service sign-up returned `sign-up-failed` while direct Supabase Auth sign-up returned HTTP 429, so the email sign-up path needs a later provider-rate-limit or SMTP check.
 - Rube, Composio, and Supabase MCP servers are present in Codex config, but their tools are not currently exposed in the callable tool list.
 - No staging environment is configured yet.
-- Brand scan and idea generation are not implemented yet, so live workspaces show truthful empty states until AI jobs write rows.
+- Brand scan job execution and idea generation are not implemented yet, so live workspaces show truthful empty states until AI jobs write rows.
 - Optional local pre-push hook is committed in `.githooks/`; run `npm run hooks:install` to enable it locally.
 - CI has dependency audit and a lightweight committed-secret scan; broader SAST/SBOM/image scanning are future hardening steps.
 - No AI prompt contracts or eval tests are implemented yet.
@@ -143,6 +145,14 @@ Decision: add authenticated server-side workspace content queries for `brand_pro
 Evidence: mapper tests cover Supabase row-to-UI conversion; lint, TypeScript, and unit tests pass locally.
 
 Why: real trainers should never see fixture content presented as their own AI output. The app should either show tenant-scoped data from Supabase or clearly say that generation has not happened yet.
+
+### 2026-05-28: Queue Brand Scan Jobs
+
+Decision: add a server action that creates `brand_scan` rows in `ai_jobs` through the authenticated Supabase user session, avoid duplicate active jobs for normal repeated submits, and show latest job status on dashboard/profile screens.
+
+Evidence: brand scan input/status tests, lint, TypeScript, and unit tests pass locally.
+
+Why: the AI pipeline needs durable, workspace-scoped job records before model calls or background workers are connected. This gives us traceability without adding model risk yet.
 
 ### 2026-05-26: Supabase Foundation Merged
 

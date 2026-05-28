@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell/AppShell";
+import { getBrandScanJobMessage, getLatestBrandScanJob, isActiveBrandScanJob } from "@/lib/ai-jobs/brand-scan";
 import { getAppSession } from "@/lib/auth/app-session";
 import { mockContentIdeas } from "@/lib/fixtures/coachcast";
 import { getWorkspaceStudioContent } from "@/lib/workspaces/workspace-data";
@@ -18,10 +19,13 @@ export default async function DashboardPage({ searchParams }: { searchParams: Da
   const params = await searchParams;
   const session = await getAppSession({ nextPath: "/app", requireWorkspace: true });
   const workspaceName = session.workspace?.name ?? "Demo workspace";
-  const liveStudioContent =
-    session.authEnabled && session.workspace ? await getWorkspaceStudioContent(session.workspace) : null;
+  const [liveStudioContent, latestBrandScanJob] =
+    session.authEnabled && session.workspace
+      ? await Promise.all([getWorkspaceStudioContent(session.workspace), getLatestBrandScanJob(session.workspace.id)])
+      : [null, null];
   const contentIdeas = session.authEnabled ? liveStudioContent?.contentIdeas ?? [] : mockContentIdeas;
   const hasBrandProfile = session.authEnabled ? Boolean(liveStudioContent?.brandProfile) : true;
+  const isBrandScanActive = isActiveBrandScanJob(latestBrandScanJob);
   const statusMessage = params.status ? statusMessages[params.status] : null;
   const nextStepHref = session.authEnabled ? "/app/profile" : "/app/onboarding";
 
@@ -73,13 +77,19 @@ export default async function DashboardPage({ searchParams }: { searchParams: Da
         <article className="app-card">
           <span className="app-card__kicker">Pipeline</span>
           <h2>
-            {session.authEnabled ? (hasBrandProfile ? "Profile ready" : "Brand scan next") : "Mock first, AI second"}
+            {session.authEnabled
+              ? hasBrandProfile
+                ? "Profile ready"
+                : isBrandScanActive
+                  ? "Scan queued"
+                  : "Brand scan next"
+              : "Mock first, AI second"}
           </h2>
           <p>
             {session.authEnabled
               ? hasBrandProfile
                 ? "Your latest brand profile is stored in Supabase and ready to feed idea generation."
-                : "Your workspace boundary is live. Next we connect the brand scan job that writes the profile."
+                : getBrandScanJobMessage(latestBrandScanJob)
               : "We validate screens and data contracts before adding model calls, storage, or video workers."}
           </p>
         </article>

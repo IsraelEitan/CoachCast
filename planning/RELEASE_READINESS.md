@@ -186,10 +186,12 @@ Trigger: Before enabling real AI brand scans, idea generation, script generation
 Current evidence:
 
 - Mock fixtures drive current product screens.
+- `brand_scan` jobs can be queued, but no worker executes them yet.
 - No AI prompt contracts or eval tests are implemented yet.
 
 Required resolution:
 
+- Add a worker or controlled execution path that claims queued AI jobs and updates status idempotently.
 - Define structured input/output contracts for each AI job kind.
 - Add prompt/version metadata to generated outputs.
 - Add eval fixtures for typical trainers, gyms, edge cases, unsafe claims, and unsupported medical/fitness claims.
