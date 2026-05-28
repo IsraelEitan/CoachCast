@@ -187,13 +187,13 @@ Current evidence:
 
 - Mock fixtures drive current product screens.
 - `brand_scan` has a versioned prompt contract, output validator, and eval fixtures.
-- `brand_scan` jobs can be queued and a protected worker route exists, but live OpenAI/Supabase worker execution has not been validated against production data.
+- `brand_scan` jobs can be queued and a protected worker route exists.
+- Live production OpenAI/Supabase worker execution was validated on 2026-05-28 with a labeled disposable workspace. The first run exposed hidden whitespace/BOM handling in environment secrets; PR #24 normalized worker secrets and PR #25 normalized OpenAI config values. The retry processed one queued job and wrote a ready `brand_profiles` row. Cleanup deleted the disposable auth user and left 0 auth users, 0 workspaces, 0 AI jobs, and 0 brand profiles.
 - Other AI job kinds do not have prompt contracts or eval tests yet.
 
 Required resolution:
 
-- Configure `AI_WORKER_SECRET`, `OPENAI_API_KEY`, and `OPENAI_BRAND_SCAN_MODEL` intentionally per environment before enabling live worker calls.
-- Validate a live worker run against a labeled test workspace and clean up or retain the test data intentionally.
+- Configure `AI_WORKER_SECRET`, `OPENAI_API_KEY`, and `OPENAI_BRAND_SCAN_MODEL` intentionally per non-production environment before enabling live worker calls outside Production.
 - Add automatic scheduling or an approved operator runbook for worker invocation.
 - Add transactional job completion or a Postgres RPC with `FOR UPDATE SKIP LOCKED` before high-volume external beta use.
 - Define structured input/output contracts for each remaining AI job kind.
