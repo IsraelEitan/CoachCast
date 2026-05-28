@@ -2,12 +2,7 @@ import { redirect } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { getSupabaseBrowserConfig } from "@/lib/supabase/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { Database } from "@/lib/supabase/database.types";
-
-export type WorkspaceSummary = Pick<
-  Database["public"]["Tables"]["workspaces"]["Row"],
-  "audience_summary" | "id" | "instagram_handle" | "name" | "primary_offer" | "website_url"
->;
+import { getPrimaryWorkspace, type WorkspaceSummary } from "@/lib/workspaces/workspace-data";
 
 export type AppSession =
   | {
@@ -27,23 +22,6 @@ type AppSessionOptions = {
   nextPath?: string;
   requireWorkspace?: boolean;
 };
-
-type SupabaseServerClient = Awaited<ReturnType<typeof createSupabaseServerClient>>;
-
-async function getPrimaryWorkspace(supabase: SupabaseServerClient) {
-  const { data, error } = await supabase
-    .from("workspaces")
-    .select("audience_summary,id,instagram_handle,name,primary_offer,website_url")
-    .order("created_at", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-
-  if (error) {
-    throw new Error("Unable to load the current workspace.");
-  }
-
-  return data;
-}
 
 export async function getAppSession({ nextPath = "/app", requireWorkspace = false }: AppSessionOptions = {}) {
   if (!getSupabaseBrowserConfig()) {

@@ -80,17 +80,27 @@ Move CoachCast from a mocked product demo to the first tenant-safe production wo
 
 ## Acceptance Criteria
 
-- [ ] Anonymous users can view the public landing page.
-- [ ] Anonymous users cannot access protected app routes with workspace data.
-- [ ] Authenticated users without a workspace are directed to onboarding.
-- [ ] Authenticated users can create one owned workspace.
-- [ ] Workspace creation creates an owner membership.
-- [ ] Authenticated workspace members can read their workspace.
-- [ ] Workspace-scoped queries do not require service-role access from browser code.
-- [ ] The app still builds and runs without Supabase env vars for CI and demos.
-- [ ] Required environment variables are documented for Vercel.
-- [ ] `npm run verify` passes.
-- [ ] A smoke check passes for the relevant local or preview URL.
+- [x] Anonymous users can view the public landing page.
+- [x] Anonymous users cannot access protected app routes with workspace data.
+- [x] Authenticated users without a workspace are directed to onboarding.
+- [x] Authenticated users can create one owned workspace.
+- [x] Workspace creation creates an owner membership.
+- [x] Authenticated workspace members can read their workspace.
+- [x] Workspace-scoped queries do not require service-role access from browser code.
+- [x] The app still builds and runs without Supabase env vars for CI and demos.
+- [x] Required environment variables are documented for Vercel.
+- [x] `npm run verify` passes.
+- [x] A smoke check passes for the relevant local or preview URL.
+
+## Implementation Evidence
+
+2026-05-28:
+
+- Production sign-in, no-workspace redirect, workspace creation, owner membership, dashboard render, and test-data cleanup were validated with a confirmed test user.
+- Live dashboard/profile/ideas reads now use authenticated Supabase server queries for `workspaces`, `brand_profiles`, and `content_ideas`.
+- Live workspaces show empty states when no AI-generated profile or ideas exist yet; fixture content remains available only in demo/no-Supabase mode.
+- `npm run verify` and local smoke against `http://127.0.0.1:3000` passed for the workspace data-read slice.
+- Public self-service sign-up/email delivery still needs a later provider-rate-limit or custom SMTP check before real users.
 
 ## Validation Plan
 
@@ -119,9 +129,9 @@ Manual:
 
 ## What Was Not Tested
 
-- This document does not validate a live Supabase project.
-- This document does not prove provider-specific auth settings.
-- This document does not test production Vercel environment variables.
+- Public self-service sign-up/email delivery still needs a retry because Supabase returned HTTP 429 during validation.
+- Staging Supabase validation is not configured yet.
+- Browser accessibility and visual regression coverage are not automated yet.
 
 ## Breaking Changes
 
