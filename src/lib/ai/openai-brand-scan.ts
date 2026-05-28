@@ -31,7 +31,7 @@ export type OpenAiBrandScanConfig = {
 type FetchLike = (input: string, init: RequestInit) => Promise<Response>;
 
 function firstConfiguredValue(...values: Array<string | undefined>) {
-  return values.find((value) => value !== undefined && value.trim().length > 0);
+  return values.find((value) => value !== undefined && value.trim().length > 0)?.trim();
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
