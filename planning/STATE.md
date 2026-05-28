@@ -27,8 +27,8 @@ Last updated: 2026-05-28
 - Production was redeployed after env setup: `dpl_EgRR5RQqPzUYUsTDJCaG99qQQm54`.
 - Live production auth/workspace write validation passed with a confirmed test user; the test user and workspace were cleaned up.
 - Live workspace, brand profile, and content idea reads use authenticated Supabase server queries; demo fixtures remain only for no-config demo mode.
-- Authenticated workspaces can queue a `brand_scan` AI job; the protected worker route is available but not live-validated yet.
-- `brand_scan` has a versioned prompt contract, output validator, eval fixtures, protected worker route, and OpenAI adapter; live worker execution still requires server-only env config and validation.
+- Authenticated workspaces can queue a `brand_scan` AI job; the protected worker route processed a live production `brand_scan` job against disposable test data and wrote a ready brand profile.
+- `brand_scan` has a versioned prompt contract, output validator, eval fixtures, protected worker route, OpenAI adapter, production env config, and live E2E validation. Scheduling/operator invocation and high-volume locking are still open.
 
 ## Active Delivery Focus
 
@@ -48,8 +48,8 @@ Current release gate:
 Immediate next engineering goals:
 
 1. Recheck public self-service sign-up after Supabase Auth rate limiting clears, or configure custom SMTP before real users.
-2. Configure and validate one live protected brand scan worker run against a labeled test workspace.
-3. Decide whether worker invocation should use Vercel Cron, an operator-only runbook, or a later queue service.
+2. Decide whether worker invocation should use Vercel Cron, an operator-only runbook, or a later queue service.
+3. Add the next AI pipeline slice after `brand_scan` only with a prompt contract, eval fixture, and worker validation plan.
 4. Create a separate staging Supabase environment before real users or serious preview testing.
 
 ## Validation Baseline
@@ -79,7 +79,7 @@ Production deployment validation:
 - Public self-service sign-up returned `sign-up-failed` while direct Supabase Auth sign-up returned HTTP 429, so the email sign-up path needs a later provider-rate-limit or SMTP check.
 - Rube, Composio, and Supabase MCP servers are present in Codex config, but their tools are not currently exposed in the callable tool list.
 - No staging environment is configured yet.
-- Brand scan worker execution exists behind a protected API route, but live execution has not been validated yet; idea generation is not implemented.
+- Brand scan worker execution is live-validated behind a protected API route, but invocation is still manual/operator-controlled; idea generation is not implemented.
 - Optional local pre-push hook is committed in `.githooks/`; run `npm run hooks:install` to enable it locally.
 - CI has dependency audit and a lightweight committed-secret scan; broader SAST/SBOM/image scanning are future hardening steps.
 - Brand scan has prompt contract/eval tests; remaining AI job kinds still need contracts and eval coverage.
@@ -173,6 +173,14 @@ Decision: add a disabled-by-default `POST /api/ai-jobs/brand-scan/run` route gua
 Evidence: worker tests cover idle, invalid input, success, and invalid output paths. OpenAI adapter tests cover strict Structured Outputs request shape and provider error handling.
 
 Why: CoachCast needs an operator-controlled path from queued jobs to validated brand profiles before adding scheduling, broader AI jobs, or real-user traffic.
+
+### 2026-05-28: Validate Live Brand Scan Worker
+
+Decision: configure production `AI_WORKER_SECRET`, `OPENAI_API_KEY`, and `OPENAI_BRAND_SCAN_MODEL`, deploy the protected worker route, create a disposable Supabase Auth user/workspace/job fixture, run the production worker, and clean up the fixture.
+
+Evidence: unauthenticated worker calls returned `401`; authenticated empty-queue worker calls returned `{"status":"idle"}`; one production E2E retry processed job `f7da2ade-225b-4f7d-828b-9f46c8410b7d` and wrote profile `fa511130-f8e9-42c3-82b8-c7ae09eedaf9`; cleanup deleted the disposable auth user and left 0 auth users, 0 workspaces, 0 AI jobs, and 0 brand profiles. Production smoke passed after deployment.
+
+Why: this proves the deployed app, Vercel server-only env config, Supabase service-role worker path, OpenAI Responses API adapter, output validation, and database write path work together before real-user data enters the system.
 
 ### 2026-05-26: Supabase Foundation Merged
 
