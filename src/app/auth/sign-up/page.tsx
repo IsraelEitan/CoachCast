@@ -9,9 +9,13 @@ type AuthSearchParams = Promise<{
 }>;
 
 const statusMessages: Record<string, string> = {
+  "email-delivery-unavailable":
+    "Account email delivery is not ready yet. CoachCast needs a production email provider before public sign-up opens.",
   "invalid-sign-up": "Enter a valid email and a password with at least 8 characters.",
   "missing-config": "Supabase is not configured yet. The demo app is still available.",
-  "sign-up-failed": "We could not create the account. Try again or sign in if you already have one."
+  "sign-up-failed": "We could not create the account. Try again or sign in if you already have one.",
+  "sign-up-rate-limited":
+    "Account email delivery is temporarily rate limited. Try again later, or wait for CoachCast to finish production email setup."
 };
 
 export default async function SignUpPage({ searchParams }: { searchParams: AuthSearchParams }) {

@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getSupabaseBrowserConfig } from "@/lib/supabase/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSignUpFailureStatus } from "./sign-up-errors";
 
 function authRedirect(path: "/auth/sign-in" | "/auth/sign-up", status: string) {
   redirect(`${path}?status=${encodeURIComponent(status)}`);
@@ -68,7 +69,7 @@ export async function signUpAction(formData: FormData) {
   });
 
   if (error) {
-    authRedirect("/auth/sign-up", "sign-up-failed");
+    authRedirect("/auth/sign-up", getSignUpFailureStatus(error));
   }
 
   if (!data.session) {

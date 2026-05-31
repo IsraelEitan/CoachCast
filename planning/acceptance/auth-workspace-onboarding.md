@@ -101,6 +101,7 @@ Move CoachCast from a mocked product demo to the first tenant-safe production wo
 - Live workspaces show empty states when no AI-generated profile or ideas exist yet; fixture content remains available only in demo/no-Supabase mode.
 - `npm run verify` and local smoke against `http://127.0.0.1:3000` passed for the workspace data-read slice.
 - Public self-service sign-up/email delivery still needs a later provider-rate-limit or custom SMTP check before real users.
+- 2026-05-31 direct Supabase Auth sign-up probe returned HTTP 429 again and created 0 Auth users, so the remaining production path requires custom SMTP plus reachable-inbox validation.
 
 ## Validation Plan
 
@@ -129,7 +130,7 @@ Manual:
 
 ## What Was Not Tested
 
-- Public self-service sign-up/email delivery still needs a retry because Supabase returned HTTP 429 during validation.
+- Public self-service sign-up/email delivery still needs custom SMTP because Supabase returned HTTP 429 during validation on 2026-05-28 and 2026-05-31.
 - Staging Supabase validation is not configured yet.
 - Browser accessibility and visual regression coverage are not automated yet.
 
