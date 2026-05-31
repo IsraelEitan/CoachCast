@@ -1,6 +1,6 @@
 # CoachCast Delivery State
 
-Last updated: 2026-05-28
+Last updated: 2026-05-31
 
 ## Current Production State
 
@@ -76,7 +76,7 @@ Production deployment validation:
 
 - Real-user release blockers are tracked in `planning/RELEASE_READINESS.md`.
 - Supabase `db lint --linked` timed out during remote validation and should be retried after the pooler auth circuit breaker clears.
-- Public self-service sign-up returned `sign-up-failed` while direct Supabase Auth sign-up returned HTTP 429, so the email sign-up path needs a later provider-rate-limit or SMTP check.
+- Public self-service sign-up returned `sign-up-failed` while direct Supabase Auth sign-up returned HTTP 429 on 2026-05-28. A direct sign-up probe returned HTTP 429 again on 2026-05-31 and created 0 Auth users, so the email sign-up path needs custom SMTP before real users.
 - Rube, Composio, and Supabase MCP servers are present in Codex config, but their tools are not currently exposed in the callable tool list.
 - No staging environment is configured yet.
 - Brand scan worker execution is live-validated behind a protected API route with a daily Vercel Cron invocation path; idea generation is not implemented.
@@ -181,6 +181,14 @@ Decision: configure production `AI_WORKER_SECRET`, `OPENAI_API_KEY`, and `OPENAI
 Evidence: unauthenticated worker calls returned `401`; authenticated empty-queue worker calls returned `{"status":"idle"}`; one production E2E retry processed job `f7da2ade-225b-4f7d-828b-9f46c8410b7d` and wrote profile `fa511130-f8e9-42c3-82b8-c7ae09eedaf9`; cleanup deleted the disposable auth user and left 0 auth users, 0 workspaces, 0 AI jobs, and 0 brand profiles. Production smoke passed after deployment.
 
 Why: this proves the deployed app, Vercel server-only env config, Supabase service-role worker path, OpenAI Responses API adapter, output validation, and database write path work together before real-user data enters the system.
+
+### 2026-05-31: Recheck Public Sign-Up Email Delivery
+
+Decision: recheck Supabase public sign-up behavior before choosing the next real-user release task, and keep public sign-up blocked until production email delivery is configured.
+
+Evidence: a direct Supabase Auth sign-up probe with a unique public-style test address returned HTTP 429 and created 0 Auth users. Supabase documentation states the built-in email service is for exploration/demo use and production projects should configure custom SMTP.
+
+Why: the app can support confirmed-user sign-in and workspace onboarding, but real-user self-service sign-up depends on reliable email confirmation delivery. Without custom SMTP and a reachable inbox validation, public sign-up would fail unpredictably or silently block onboarding.
 
 ### 2026-05-26: Supabase Foundation Merged
 

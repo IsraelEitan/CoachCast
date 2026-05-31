@@ -22,6 +22,8 @@ Every item must include:
 
 Status: Open
 
+Tracking: GitHub issue #29
+
 Risk: Authentication, email delivery, onboarding conversion.
 
 Trigger: Before inviting real users, paid traffic, external beta users, or public sign-up.
@@ -32,10 +34,14 @@ Current evidence:
 - Public app sign-up returned `sign-up-failed` on 2026-05-28.
 - Direct Supabase Auth sign-up returned HTTP `429` on 2026-05-28.
 - This is consistent with provider-side sign-up/email rate limiting or email delivery configuration.
+- Direct Supabase Auth sign-up with a unique public-style test address returned HTTP `429` again on 2026-05-31 and created 0 Auth users.
+- Supabase documentation says the built-in email service is for exploration/demo use, is not intended for production, limits messages heavily, and requires custom SMTP for production user email delivery.
 
 Required resolution:
 
 - Decide whether to use Supabase default email temporarily or configure custom SMTP.
+- Choose an Auth email provider and gather SMTP host, port, username, password, sender address, sender name, and domain authentication requirements.
+- Configure Supabase custom SMTP before public sign-up is opened beyond internal testing.
 - Verify new-user sign-up from the public production UI.
 - Verify confirmation email delivery, confirmation redirect, sign-in after confirmation, and resend behavior.
 - Verify error states for duplicate email, weak password, invalid email, and rate limits.
@@ -44,6 +50,7 @@ Required resolution:
 Validation evidence:
 
 - Browser or HTTP evidence for public sign-up with a real reachable test inbox.
+- Supabase Auth logs show email handoff to the configured SMTP provider without provider errors.
 - No `missing-config`, unexpected `sign-up-failed`, or provider `429` during the validation window.
 - Test user and workspace cleanup confirmed, or test account intentionally retained and labeled.
 
